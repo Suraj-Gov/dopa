@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently \"yarn run watch:*\"",
+    "watch:build": "tsc --w",
+    "watch:js": "nodemon",
+    "start": "node dist/server/src/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
+    "fastify": "^3.28.0",
+    "fastify-cors": "^6.0.3",
+    "lodash.unescape": "^4.0.1",
+    "source-map-support": "^0.5.21",
+    "winston": "^3.7.2",
+    "zod": "^3.14.4"
+  },
+  "devDependencies": {
+    "@types/lodash.unescape": "^4.0.7",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.25",
+    "concurrently": "^7.1.0",
+    "nodemon": "^2.0.15",
+    "pino": "^7.10.0",
+    "pino-pretty": "^7.6.1",
+    "typescript": "^4.6.3"
+  }
+}
