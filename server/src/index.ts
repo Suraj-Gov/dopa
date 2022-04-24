@@ -8,6 +8,7 @@ import { logger } from "./utils/logger";
 
 import searchRoutes from "./routes/search";
 import trendingRoute from "./routes/trending";
+import axios from "axios";
 
 const server = fastify({
   logger: {
@@ -25,6 +26,8 @@ server.register(cors);
 server.get("/ping", async (_request, _reply) => {
   return "pong";
 });
+
+axios.defaults.headers.common["Cookie"] = `L=hindi%2Cenglish`;
 
 server.register(searchRoutes, { prefix: "/api/search" });
 server.register(trendingRoute, { prefix: "/api/trending" });

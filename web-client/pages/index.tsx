@@ -1,22 +1,22 @@
 import { AiOutlineSearch } from "react-icons/ai";
-import {
-  Text,
-  Box,
-  Center,
-  Container,
-  Group,
-  Image,
-  LoadingOverlay,
-  SimpleGrid,
-  Stack,
-  TextInput,
-} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import type { NextPage } from "next";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { jioSaavnTypes } from "../types/jioSaavn";
+import {
+  Image,
+  Text,
+  Container,
+  Center,
+  SimpleGrid,
+  Box,
+  Stack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+} from "@chakra-ui/react";
 
 const Home: NextPage = () => {
   const [searchStr, setSearchStr] = useState("");
@@ -36,26 +36,52 @@ const Home: NextPage = () => {
     <>
       <Container p="xs" size="sm">
         <Center>
-          <TextInput
-            icon={<AiOutlineSearch />}
-            label="Search"
-            value={searchStr}
-            onChange={(e) => setSearchStr(e.target.value)}
-          />
+          <InputGroup my="4">
+            <InputLeftElement>
+              <AiOutlineSearch />
+            </InputLeftElement>
+            <Input
+              value={searchStr}
+              placeholder="What's on your mind?"
+              onChange={(e) => setSearchStr(e.target.value)}
+            />
+          </InputGroup>
         </Center>
-        <LoadingOverlay visible={getTrending.isLoading} />
-        <Box>
+
+        <SimpleGrid columns={4} spacing="6">
           {getTrending.isSuccess &&
             getTrending.data?.data?.new_trending?.map((i) => (
-              <Group key={i.id}>
-                <Image width={"5rem"} src={i.image} alt={i.title} />
-                <Stack>
-                  <Text weight={700}>{i.title}</Text>
-                  <Text size="sm">{i.type}</Text>
-                </Stack>
-              </Group>
+              <Box
+                width="8rem"
+                borderRadius={"8px"}
+                overflow="hidden"
+                position={"relative"}
+                key={i.id}
+              >
+                <Box
+                  sx={{
+                    background:
+                      "linear-gradient(0deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 100%)",
+                  }}
+                  position="absolute"
+                  inset="0"
+                />
+                <Text
+                  color="white"
+                  position={"absolute"}
+                  top="2"
+                  left="2"
+                  size="sm"
+                >
+                  {i.type}
+                </Text>
+                <Image borderRadius={"8px"} src={i.image} alt={i.title} />
+                <Box mt="2">
+                  <Text fontWeight={"bold"}>{i.title}</Text>
+                </Box>
+              </Box>
             ))}
-        </Box>
+        </SimpleGrid>
       </Container>
     </>
   );
