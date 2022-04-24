@@ -5,9 +5,11 @@ import cors from "fastify-cors";
 
 import { isProd } from "./constants/env";
 import { logger } from "./utils/logger";
+import { escapeEncoding } from "./utils/formatter";
 
 import searchRoutes from "./routes/search";
-import trendingRoute from "./routes/trending";
+import trendingRoutes from "./routes/trending";
+import getByIdRoutes from "./routes/getById";
 import axios from "axios";
 
 const server = fastify({
@@ -28,9 +30,17 @@ server.get("/ping", async (_request, _reply) => {
 });
 
 axios.defaults.headers.common["Cookie"] = `L=hindi%2Cenglish`;
+axios.interceptors.response.use((res) => {
+  if (res.status < 400) {
+    res.data = escapeEncoding(res.data);
+    return res;
+  }
+  return res;
+});
 
+server.register(getByIdRoutes, { prefix: "/api" });
 server.register(searchRoutes, { prefix: "/api/search" });
-server.register(trendingRoute, { prefix: "/api/trending" });
+server.register(trendingRoutes, { prefix: "/api/trending" });
 
 const PORT = process.env.PORT || 4000;
 

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { ContextConfigDefault, FastifyInstance, FastifyRequest } from "fastify";
-import { escapeEncoding } from "../utils/formatter";
 
 import { jioSaavnEndpoint } from "../constants/api";
 
@@ -9,7 +8,7 @@ const handlers = {
     const { search } = req.query;
     const url = jioSaavnEndpoint.search(search);
     const { data } = await axios.get(url);
-    return escapeEncoding(data);
+    return data;
   },
 };
 

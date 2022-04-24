@@ -6,7 +6,13 @@ export const jioSaavnEndpoint = {
   search: (searchQuery: string) =>
     `https://www.jiosaavn.com/api.php?__call=autocomplete.get&_format=json&_marker=0&ctx=wap6dot0&query=${searchQuery}`,
   songById: (id: string) =>
-    `https://www.jiosaavn.com/api.php?__call=webapi.get&type=song&includeMetaTags=0&api_version=4&_format=json&ctx=wap6dot0&_marker=0&token=${id}`,
+    `https://www.jiosaavn.com/api.php?_format=json&__call=song.getDetails&cc=in&_marker=0%3F_marker%3D0&pids=${id}`,
+  playlistById: (id: string) =>
+    `https://www.jiosaavn.com/api.php?_format=json&__call=playlist.getDetails&cc=in&_marker=0%3F_marker%3D0&listid=${id}`,
+  albumById: (id: string) =>
+    `https://www.jiosaavn.com/api.php?__call=content.getAlbumDetails&_format=json&cc=in&_marker=0%3F_marker=0&albumid=${id}`,
+  artistByToken: (token: string) =>
+    `https://www.jiosaavn.com/api.php?__call=webapi.get&type=artist&n_song=50&n_album=50&includeMetaTags=0&ctx=wap6dot0&api_version=4&_format=json&_marker=0&token=${token}`,
   createStation: (id: string[]) => {
     const songArr = id.map((i) => `"${i}"`).join(",");
     return `https://www.jiosaavn.com/api.php?__call=webradio.createEntityStation&entity_type=queue&api_version=4&_format=json&_marker=0&ctx=wap6dot0entity_id=[${songArr}]`;

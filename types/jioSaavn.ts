@@ -47,6 +47,7 @@ interface jsSimilarArtistI extends jsBaseI {
 }
 
 export interface jsArtistI extends jsBaseI, jsMoreInfoI {
+  perma_url: string;
   type: "artist";
   artistId: string;
   name: string;
@@ -82,7 +83,8 @@ export interface jsSongI extends jsBaseI, jsMoreInfoI {
 
 export interface jsPlaylistI extends jsBaseI {
   type: "playlist";
-  list: jsSongI | jsMoreInfoI;
+  list?: (jsSongI & jsMoreInfoI)[];
+  songs: (jsSongI & jsMoreInfoI)[];
 }
 
 export interface jsTrendingI {
@@ -92,3 +94,6 @@ export interface jsTrendingI {
   new_trending: (jsAlbumI | jsArtistI | jsPlaylistI | jsSongI)[];
   top_playlists: jsPlaylistI[];
 }
+
+export type jsAnyI = jsSongI | jsArtistI | jsAlbumI | jsPlaylistI;
+export type jsEntityType = "song" | "playlist" | "album" | "artist";

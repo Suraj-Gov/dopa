@@ -1,12 +1,13 @@
 import "../styles/globals.css";
 import "@fontsource/overpass";
 import type { AppProps } from "next/app";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
 import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useEffect } from "react";
 import axios from "axios";
 import { isProd } from "../constants";
+import SearchBar from "../components/SearchBar";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +34,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>Dopa</title>
       </Head>
       <QueryClientProvider client={queryClient}>
-        <Component {...pageProps} />
+        <Container size="md">
+          <SearchBar />
+          <Component {...pageProps} />
+        </Container>
       </QueryClientProvider>
     </ChakraProvider>
   );

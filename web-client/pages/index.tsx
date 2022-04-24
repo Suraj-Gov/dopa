@@ -16,12 +16,13 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Heading,
 } from "@chakra-ui/react";
+import Card from "../components/Card";
+import Link from "next/link";
+import { resolveUrl, toNameCase } from "../helpers";
 
 const Home: NextPage = () => {
-  const [searchStr, setSearchStr] = useState("");
-  const [debouncedSearchStr] = useDebouncedValue(searchStr, 500);
-
   const getTrending = useQuery(
     ["trending"],
     async () => await axios.get<jioSaavnTypes.jsTrendingI>("/trending/all"),
@@ -34,55 +35,47 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <Container p="xs" size="sm">
-        <Center>
-          <InputGroup my="4">
-            <InputLeftElement>
-              <AiOutlineSearch />
-            </InputLeftElement>
-            <Input
-              value={searchStr}
-              placeholder="What's on your mind?"
-              onChange={(e) => setSearchStr(e.target.value)}
-            />
-          </InputGroup>
-        </Center>
-
-        <SimpleGrid columns={4} spacing="6">
-          {getTrending.isSuccess &&
-            getTrending.data?.data?.new_trending?.map((i) => (
-              <Box
-                width="8rem"
-                borderRadius={"8px"}
-                overflow="hidden"
-                position={"relative"}
+      {getTrending.isSuccess && (
+        <>
+          <Heading size="md" my="4">
+            Trending
+          </Heading>
+          <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]}>
+            {getTrending.data?.data?.new_trending?.map((i) => (
+              <Card
+                overlayChildren={
+                  <Text m="2" color="white" size="sm">
+                    {toNameCase(i.type)}
+                  </Text>
+                }
+                imageUrl={i.image}
+                onClick={() => {}}
                 key={i.id}
               >
-                <Box
-                  sx={{
-                    background:
-                      "linear-gradient(0deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 100%)",
-                  }}
-                  position="absolute"
-                  inset="0"
-                />
-                <Text
-                  color="white"
-                  position={"absolute"}
-                  top="2"
-                  left="2"
-                  size="sm"
-                >
-                  {i.type}
-                </Text>
-                <Image borderRadius={"8px"} src={i.image} alt={i.title} />
-                <Box mt="2">
-                  <Text fontWeight={"bold"}>{i.title}</Text>
-                </Box>
-              </Box>
+                <Link href={resolveUrl(i)}>
+                  <a>
+                    <Text fontWeight={"bold"}>{i.title}</Text>
+                  </a>
+                </Link>
+              </Card>
             ))}
-        </SimpleGrid>
-      </Container>
+          </SimpleGrid>
+          <Heading size="md" my="4">
+            Chartbusters
+          </Heading>
+          <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]}>
+            {getTrending?.data?.data?.charts?.map((i) => (
+              <Card key={i.id} imageUrl={i.image} onClick={() => {}}>
+                <Link href={resolveUrl(i)}>
+                  <a>
+                    <Text fontWeight={"bold"}>{i.title}</Text>
+                  </a>
+                </Link>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </>
+      )}
     </>
   );
 };
