@@ -5,7 +5,12 @@ import {
   FastifyReply,
   FastifyRequest,
 } from "fastify";
-import { jsAnyI, jsEntityType } from "../../../types/jioSaavn";
+import { logger } from "../utils/logger";
+import {
+  jsAnyI,
+  jsEntityType,
+  jsSearchResultsI,
+} from "../../../types/jioSaavn";
 import { jioSaavnEndpoint } from "../constants/api";
 
 const handlers = {
@@ -27,7 +32,29 @@ const handlers = {
         url = jioSaavnEndpoint.playlistById(id);
         break;
       case "artist":
-        url = jioSaavnEndpoint.artistByToken(id);
+        const searchUrl = jioSaavnEndpoint.search(
+          decodeURIComponent(id + " artist")
+        );
+        console.log(searchUrl);
+        const { data } = await axios.get<jsSearchResultsI>(searchUrl);
+        let token = "";
+        if (data?.topquery?.data[0]?.type === "artist") {
+          const tokenUrl =
+            data?.topquery?.data[0]?.perma_url ?? data?.topquery?.data[0]?.url;
+          token = tokenUrl?.split("/").pop() ?? "";
+        } else if (data?.artists?.data[0]) {
+          const tokenUrl =
+            data?.artists?.data[0]?.perma_url ?? data?.artists?.data[0]?.url;
+          token = tokenUrl?.split("/").pop() ?? "";
+        }
+        if (token) {
+          url = jioSaavnEndpoint.artistByToken(token);
+          logger.info(url);
+        } else {
+          return reply.status(404).send({
+            message: "No artists found",
+          });
+        }
         break;
       default:
         return reply.status(404).send({

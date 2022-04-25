@@ -13,7 +13,7 @@ interface props {
 }
 
 const SongCard: React.FC<props> = ({ album, artists, imageUrl, title }) => {
-  const artist = artists.split(",").shift();
+  const artist = artists?.split(",").shift();
 
   return (
     <HStack>
@@ -24,21 +24,14 @@ const SongCard: React.FC<props> = ({ album, artists, imageUrl, title }) => {
         alt={"album-art"}
       />
       <Box>
-        <Text
-          whiteSpace={"nowrap"}
-          overflow={"hidden"}
-          fontWeight={"bold"}
-          textOverflow="ellipsis"
-        >
-          {title}
-        </Text>
+        <Text fontWeight={"bold"}>{title}</Text>
         <Text fontSize={"sm"}>
-          <Link href={`/album/${album.id}`}>
+          <Link href={`/view/album/${album.id}`}>
             <a>{album.title}</a>
           </Link>
         </Text>
         <Text fontSize={"xs"}>
-          <Link href={`/artist/${artist}`}>
+          <Link href={`/view/artist/${artist}`}>
             <a>{artist}</a>
           </Link>
         </Text>

@@ -80,7 +80,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                     Top Songs
                   </Heading>
                   <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
-                    {data?.topSongs?.map(({ more_info: i }) => (
+                    {data?.topSongs?.map((i) => (
                       <SongCard
                         key={i.id}
                         album={{ id: i.albumid, title: i.album }}

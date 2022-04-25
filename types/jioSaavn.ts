@@ -6,6 +6,7 @@ interface jsBaseI {
   image: string;
   role?: string;
   release_date: string /** YYYY-MM-DD */;
+  url?: string;
 }
 
 interface jsArtistMapI {
@@ -51,9 +52,7 @@ export interface jsArtistI extends jsBaseI, jsMoreInfoI {
   type: "artist";
   artistId: string;
   name: string;
-  topSongs: {
-    more_info: jsSongI;
-  }[];
+  topSongs: jsSongI[];
   topAlbums: jsAlbumI[];
   singles: jsSongI[];
   similarArtists: jsSimilarArtistI[];
@@ -97,3 +96,21 @@ export interface jsTrendingI {
 
 export type jsAnyI = jsSongI | jsArtistI | jsAlbumI | jsPlaylistI;
 export type jsEntityType = "song" | "playlist" | "album" | "artist";
+
+export interface jsSearchResultsI {
+  albums: {
+    data: jsAlbumI[];
+  };
+  songs: {
+    data: jsSongI[];
+  };
+  playlists: {
+    data: jsPlaylistI[];
+  };
+  artists: {
+    data: jsArtistI[];
+  };
+  topquery: {
+    data: jsAnyI[];
+  };
+}
