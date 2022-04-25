@@ -82,6 +82,7 @@ export interface jsSongI extends jsBaseI, jsMoreInfoI {
 
 export interface jsPlaylistI extends jsBaseI {
   type: "playlist";
+  listname: string;
   list?: (jsSongI & jsMoreInfoI)[];
   songs: (jsSongI & jsMoreInfoI)[];
 }

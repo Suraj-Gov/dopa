@@ -170,7 +170,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   album={{ id: i.albumid, title: i.album }}
                   artists={i.primary_artists}
                   imageUrl={i.image}
-                  title={i.title}
+                  title={i.title ?? i.song}
                 />
               ))}
             </SimpleGrid>
