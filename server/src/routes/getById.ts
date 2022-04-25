@@ -10,8 +10,10 @@ import {
   jsAnyI,
   jsEntityType,
   jsSearchResultsI,
+  jsSongI,
 } from "../../../types/jioSaavn";
 import { jioSaavnEndpoint } from "../constants/api";
+import { decryptSongUrl } from "../utils";
 
 const handlers = {
   entityById: async (
@@ -24,7 +26,10 @@ const handlers = {
     switch (entityType) {
       case "song":
         url = jioSaavnEndpoint.songById(id);
-        break;
+        const { data: songData } = await axios.get(url);
+        const song: jsSongI = songData[id];
+        song.encrypted_media_url = decryptSongUrl(song.encrypted_media_url);
+        return song;
       case "album":
         url = jioSaavnEndpoint.albumById(id);
         break;
@@ -35,7 +40,6 @@ const handlers = {
         const searchUrl = jioSaavnEndpoint.search(
           decodeURIComponent(id + " artist")
         );
-        console.log(searchUrl);
         const { data } = await axios.get<jsSearchResultsI>(searchUrl);
         let token = "";
         if (data?.topquery?.data[0]?.type === "artist") {

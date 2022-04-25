@@ -53,6 +53,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
             <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
               {data?.songs?.map((i) => (
                 <SongCard
+                  playbackId={i.id}
                   album={{ id: i.albumid, title: i.album }}
                   artists={i.primary_artists}
                   imageUrl={i.image}
@@ -82,6 +83,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
                     {data?.topSongs?.map((i) => (
                       <SongCard
+                        playbackId={i.id}
                         key={i.id}
                         album={{ id: i.albumid, title: i.album }}
                         artists={i.primary_artists}
@@ -93,6 +95,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
                     {data?.singles?.map((i) => (
                       <SongCard
+                        playbackId={i.id}
                         key={i.id}
                         album={{ id: i.albumid, title: i.album }}
                         artists={i.primary_artists}
@@ -162,6 +165,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
             <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
               {(data.list ?? data.songs)?.map((i) => (
                 <SongCard
+                  playbackId={i.id}
                   key={i.id}
                   album={{ id: i.albumid, title: i.album }}
                   artists={i.primary_artists}

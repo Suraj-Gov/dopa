@@ -4,10 +4,14 @@ import type { AppProps } from "next/app";
 import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
 import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { isProd } from "../constants";
 import SearchBar from "../components/SearchBar";
+import Player from "../components/Player";
+import PlaybackContext, {
+  playbackContextStateI,
+} from "../context/playbackContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,16 +32,28 @@ const theme = extendTheme({
 axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [playbackContext, setPlaybackContext] = useState<playbackContextStateI>(
+    {
+      isPlaying: false,
+      playbackId: null,
+    }
+  );
+
   return (
     <ChakraProvider theme={theme}>
       <Head>
         <title>Dopa</title>
       </Head>
       <QueryClientProvider client={queryClient}>
-        <Container size="md">
-          <SearchBar />
-          <Component {...pageProps} />
-        </Container>
+        <PlaybackContext.Provider
+          value={{ playbackContext, setPlaybackContext }}
+        >
+          <Container size="md">
+            <SearchBar />
+            <Component {...pageProps} />
+            <Player />
+          </Container>
+        </PlaybackContext.Provider>
       </QueryClientProvider>
     </ChakraProvider>
   );
