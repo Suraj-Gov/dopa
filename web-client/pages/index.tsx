@@ -17,6 +17,7 @@ import {
   InputGroup,
   InputLeftElement,
   Heading,
+  Spinner,
 } from "@chakra-ui/react";
 import Card from "../components/Card";
 import Link from "next/link";
@@ -35,6 +36,7 @@ const Home: NextPage = () => {
 
   return (
     <>
+      {getTrending.isLoading && <Spinner />}
       {getTrending.isSuccess && (
         <>
           <Heading size="md" my="4">

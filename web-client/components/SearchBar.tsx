@@ -1,25 +1,24 @@
-import { Center, Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
+import {
+  Center,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputProps,
+} from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 
-interface props {}
+interface props extends InputProps {}
 
-const SearchBar: React.FC<props> = () => {
-  const [searchStr, setSearchStr] = useState("");
-  const [debouncedSearchStr] = useDebouncedValue(searchStr, 500);
-
+const SearchBar: React.FC<props> = (props) => {
   return (
     <Center>
       <InputGroup my="4">
         <InputLeftElement>
           <AiOutlineSearch />
         </InputLeftElement>
-        <Input
-          value={searchStr}
-          placeholder="What's on your mind?"
-          onChange={(e) => setSearchStr(e.target.value)}
-        />
+        <Input {...props} />
       </InputGroup>
     </Center>
   );

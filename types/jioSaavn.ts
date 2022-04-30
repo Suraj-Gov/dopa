@@ -21,7 +21,8 @@ interface jsMoreInfoI {
     encrypted_media_url: string;
     query: string;
     text: string;
-    music: string /** the artist's name */;
+    primary_artists?: string /** the artist's name */;
+    music?: string /** the artist's name */;
     song_count: string /** integer */;
     artistMap: {
       primary_artists: jsArtistMapI[];
@@ -114,4 +115,5 @@ export interface jsSearchResultsI {
   topquery: {
     data: jsAnyI[];
   };
+  shows: any[]; // ignore this
 }

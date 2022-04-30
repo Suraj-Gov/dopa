@@ -5,7 +5,7 @@ import cors from "fastify-cors";
 
 import { isProd } from "./constants/env";
 import { logger } from "./utils/logger";
-import { escapeEncoding } from "./utils/formatter";
+import { escapeEncoding, resizeImages } from "./utils/formatter";
 
 import searchRoutes from "./routes/search";
 import trendingRoutes from "./routes/trending";
@@ -33,6 +33,7 @@ axios.defaults.headers.common["Cookie"] = `L=hindi%2Cenglish`;
 axios.interceptors.response.use((res) => {
   if (res.status < 400) {
     res.data = escapeEncoding(res.data);
+    res.data = resizeImages(res.data);
     return res;
   }
   return res;

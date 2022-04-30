@@ -1,17 +1,17 @@
-import "../styles/globals.css";
-import "@fontsource/overpass";
-import type { AppProps } from "next/app";
 import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
-import Head from "next/head";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { useEffect, useState } from "react";
+import "@fontsource/overpass";
 import axios from "axios";
-import { isProd } from "../constants";
-import SearchBar from "../components/SearchBar";
+import type { AppProps } from "next/app";
+import Head from "next/head";
+import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import Player from "../components/Player";
+import Search from "../components/Search";
+import { isProd } from "../constants";
 import PlaybackContext, {
   playbackContextStateI,
 } from "../context/playbackContext";
+import "../styles/globals.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,7 +49,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           value={{ playbackContext, setPlaybackContext }}
         >
           <Container size="md">
-            <SearchBar />
+            <Search />
             <Component {...pageProps} />
             <Player />
           </Container>

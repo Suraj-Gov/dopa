@@ -15,5 +15,7 @@ export const resolveUrl = (entity: jioSaavnTypes.jsAnyI) => {
   }
 };
 
-export const toNameCase = (str: string) =>
-  str[0].toUpperCase() + str.substring(1);
+export const toNameCase = (str?: string) => {
+  if (!str) return "";
+  return str[0].toUpperCase() + str.substring(1);
+};
