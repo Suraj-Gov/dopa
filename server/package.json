@@ -6,6 +6,7 @@
     "dev": "concurrently \"yarn run watch:*\"",
     "watch:build": "tsc --w",
     "watch:js": "nodemon",
+    "tunnel": "cloudflared tunnel --url http://localhost:4000",
     "start": "node dist/server/src/index.js"
   },
   "dependencies": {
