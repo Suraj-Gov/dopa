@@ -21,21 +21,24 @@ const Card: React.FC<props> = ({
       overflow="hidden"
       position={"relative"}
     >
-      {overlayChildren && (
-        <Box
-          sx={{
-            background:
-              "linear-gradient(0deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 100%)",
-          }}
-          pointerEvents="none"
-          position="absolute"
-          inset="0"
-        />
-      )}
       <Box position={"relative"}>
-        <Box position={"absolute"} inset="0">
-          {overlayChildren}
-        </Box>
+        {overlayChildren && (
+          <>
+            <Box zIndex={"6"} position={"absolute"} inset="0">
+              {overlayChildren}
+            </Box>
+            <Box
+              zIndex={"5"}
+              sx={{
+                background:
+                  "linear-gradient(0deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.5) 100%)",
+                opacity: 0.5,
+              }}
+              position="absolute"
+              inset="0"
+            />
+          </>
+        )}
         <Image
           loading="lazy"
           cursor={"pointer"}

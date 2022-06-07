@@ -7,8 +7,9 @@ import { playbackActions } from "../slices/playbackSlice";
 import { playbackStoreStateT } from "../store";
 import Card from "./BaseCard";
 import SongCard from "./Cards/SongCard";
-import { BsPauseFill, BsPlay, BsPlayFill } from "react-icons/bs";
+import { BiAlbum } from "react-icons/bi";
 import { IconBaseProps } from "react-icons";
+import EntityPlaybackButton from "./EntityPlaybackButton";
 
 interface props {
   entity?: jsAnyI;
@@ -36,63 +37,18 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
         );
       case "album": {
         const albumSongs = entity.more_info?.song_pids.split(", ") ?? [];
-        const isCurrentSource = playbackState.playSource === entity.id;
-        const { isPlaying } = playbackState;
-
-        const interactionIcon = isCurrentSource ? (
-          isPlaying ? (
-            <BsPauseFill size="3rem" />
-          ) : (
-            <BsPlayFill size="3rem" />
-          )
-        ) : (
-          <BsPlay size="3rem" />
-        );
-
-        const handleClick = () => {
-          if (isCurrentSource) {
-            dispatch(playbackActions.toggle());
-          } else {
-            dispatch(
-              playbackActions.setQueue({
-                songs: albumSongs,
-                sourceId: entity.id,
-              })
-            );
-            dispatch(playbackActions.unqueue(true));
-          }
-        };
-
-        const interaction = (
-          <Center>
-            <IconButton
-              sx={{
-                opacity: 0.4,
-                _hover: {
-                  boxShadow: "none",
-                  outline: "none",
-                  opacity: 0.75,
-                },
-              }}
-              border="none"
-              background={"none"}
-              onClick={handleClick}
-              color="white"
-              icon={interactionIcon}
-              aria-label={isPlaying ? "Pause" : "Play"}
-            />
-          </Center>
-        );
 
         return (
           <Card
             imageUrl={entity.image}
             overlayChildren={
               <>
-                <Text m="2" color="white">
-                  Album
-                </Text>
-                {interaction}
+                <Icon m="2" size="1.2rem" color="white" as={BiAlbum} />
+                <EntityPlaybackButton
+                  queueItems={albumSongs}
+                  size="3rem"
+                  sourceId={entity.id}
+                />
               </>
             }
             title={entity.title}
@@ -124,7 +80,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
     console.log("got nothing");
 
     return <>JSON.stringify(entity)</>;
-  }, [entity, dispatch, playbackState]);
+  }, [entity]);
 
   return render;
 };

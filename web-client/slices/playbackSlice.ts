@@ -17,14 +17,14 @@ export const playbackSlice = createSlice({
   name: "playback",
   initialState: initialPlaybackState,
   reducers: {
-    // https://stackoverflow.com/questions/53662208/types-from-both-keys-and-values-of-object-in-typescript
-    unqueue: (state, action: PayloadAction<boolean | undefined>) => {
+    unqueue: (state) => {
       const [firstItem, ...rest] = state.playbackIdArr;
-      if (action.payload) {
-        state.current = firstItem;
-        state.isPlaying = true;
-      }
+      state.current = firstItem;
+      state.isPlaying = true;
       state.playbackIdArr = rest ?? [];
+    },
+    enqueue: (state, action: PayloadAction<string>) => {
+      state.playbackIdArr.push(action.payload);
     },
     setQueue: (
       state,

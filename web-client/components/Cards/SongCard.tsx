@@ -10,12 +10,13 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AiFillPlayCircle, AiFillPauseCircle } from "react-icons/ai";
+import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import Link from "next/link";
 import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { playbackStoreStateT } from "../../store/index";
 import { playbackActions } from "../../slices/playbackSlice";
+import EntityPlaybackButton from "../EntityPlaybackButton";
 
 interface props {
   imageUrl: string;
@@ -41,43 +42,18 @@ const SongCard: React.FC<props & StackProps> = ({
   );
   const dispatch = useDispatch();
 
-  const handlePlayback = () => {
-    if (playbackId !== playbackState.current) {
-      dispatch(playbackActions.unqueue("PLAY_NOW"));
-    } else {
-      dispatch(playbackActions.toggle());
-    }
-  };
-
   const artist = artists?.split(",").shift();
 
   return (
     <HStack {...rest}>
       <Box position={"relative"}>
-        <IconButton
-          sx={{
-            opacity: "0",
-            _hover: {
-              opacity: "1",
-            },
-          }}
-          top="2"
-          left="2"
-          position={"absolute"}
-          size="lg"
-          colorScheme="blackAlpha"
-          icon={
-            playbackState.current === playbackId ? (
-              playbackState.isPlaying ? (
-                <AiFillPauseCircle size="32" />
-              ) : (
-                <AiFillPlayCircle size="32" />
-              )
-            ) : undefined
-          }
-          aria-label={"play"}
-          onClick={handlePlayback}
-        />
+        <Box position={"absolute"} display="grid" inset="0">
+          <EntityPlaybackButton
+            size="3rem"
+            sourceId={playbackId}
+            queueItems={[playbackId]}
+          />
+        </Box>
         <Image
           borderRadius={"4px"}
           width={["3rem", "4rem"]}
