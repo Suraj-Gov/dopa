@@ -19,7 +19,7 @@ import {
   Heading,
   Spinner,
 } from "@chakra-ui/react";
-import Card from "../components/Card";
+import Card from "../components/BaseCard";
 import Link from "next/link";
 import { resolveUrl, toNameCase } from "../helpers";
 

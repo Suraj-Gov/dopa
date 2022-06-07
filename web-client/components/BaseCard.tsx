@@ -6,13 +6,11 @@ interface props {
   imageUrl: string;
   children: React.ReactNode;
   title?: string;
-  onClick: () => void;
 }
 
 const Card: React.FC<props> = ({
   overlayChildren,
   imageUrl,
-  onClick,
   children,
   title,
 }) => {
@@ -34,15 +32,18 @@ const Card: React.FC<props> = ({
           inset="0"
         />
       )}
-      <Box position={"absolute"}>{overlayChildren}</Box>
-      <Image
-        loading="lazy"
-        cursor={"pointer"}
-        onClick={onClick}
-        borderRadius={"8px"}
-        src={imageUrl}
-        alt={title ?? "album art"}
-      />
+      <Box position={"relative"}>
+        <Box position={"absolute"} inset="0">
+          {overlayChildren}
+        </Box>
+        <Image
+          loading="lazy"
+          cursor={"pointer"}
+          borderRadius={"8px"}
+          src={imageUrl}
+          alt={title ?? "album art"}
+        />
+      </Box>
       <Box mt="2">{children}</Box>
     </Box>
   );

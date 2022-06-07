@@ -8,10 +8,9 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import Player from "../components/Player";
 import Search from "../components/Search";
 import { isProd } from "../constants";
-import PlaybackContext, {
-  playbackContextStateI,
-} from "../context/playbackContext";
+import { Provider } from "react-redux";
 import "../styles/globals.css";
+import { playbackStore } from "../store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,28 +31,19 @@ const theme = extendTheme({
 axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [playbackContext, setPlaybackContext] = useState<playbackContextStateI>(
-    {
-      isPlaying: false,
-      playbackId: null,
-    }
-  );
-
   return (
     <ChakraProvider theme={theme}>
       <Head>
         <title>Dopa</title>
       </Head>
       <QueryClientProvider client={queryClient}>
-        <PlaybackContext.Provider
-          value={{ playbackContext, setPlaybackContext }}
-        >
+        <Provider store={playbackStore}>
           <Container size="md">
             <Search />
             <Component {...pageProps} />
             <Player />
           </Container>
-        </PlaybackContext.Provider>
+        </Provider>
       </QueryClientProvider>
     </ChakraProvider>
   );

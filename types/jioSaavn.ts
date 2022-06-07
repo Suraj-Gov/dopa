@@ -24,6 +24,7 @@ interface jsMoreInfoI {
     primary_artists?: string /** the artist's name */;
     music?: string /** the artist's name */;
     song_count: string /** integer */;
+    song_pids: string /** csv song pids */;
     artistMap: {
       primary_artists: jsArtistMapI[];
       featured_artists: jsArtistMapI[];

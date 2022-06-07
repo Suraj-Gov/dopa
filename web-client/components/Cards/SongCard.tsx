@@ -13,7 +13,9 @@ import {
 import { AiFillPlayCircle, AiFillPauseCircle } from "react-icons/ai";
 import Link from "next/link";
 import React, { useContext } from "react";
-import PlaybackContext from "../context/playbackContext";
+import { useDispatch, useSelector } from "react-redux";
+import { playbackStoreStateT } from "../../store/index";
+import { playbackActions } from "../../slices/playbackSlice";
 
 interface props {
   imageUrl: string;
@@ -34,26 +36,20 @@ const SongCard: React.FC<props & StackProps> = ({
   playbackId,
   ...rest
 }) => {
-  const artist = artists?.split(",").shift();
-  const {
-    playbackContext: { isPlaying, playbackId: currentPlaybackId },
-    setPlaybackContext,
-  } = useContext(PlaybackContext);
+  const playbackState = useSelector(
+    (state: playbackStoreStateT) => state.playback
+  );
+  const dispatch = useDispatch();
 
   const handlePlayback = () => {
-    if (currentPlaybackId !== playbackId) {
-      setPlaybackContext({ isPlaying: true, playbackId });
-    }
-    if (isPlaying) {
-      if (currentPlaybackId === playbackId) {
-        setPlaybackContext((x) => ({ ...x, isPlaying: false }));
-      } else {
-        setPlaybackContext((x) => ({ ...x, playbackId }));
-      }
+    if (playbackId !== playbackState.current) {
+      dispatch(playbackActions.unqueue("PLAY_NOW"));
     } else {
-      setPlaybackContext((x) => ({ ...x, isPlaying: true }));
+      dispatch(playbackActions.toggle());
     }
   };
+
+  const artist = artists?.split(",").shift();
 
   return (
     <HStack {...rest}>
@@ -71,11 +67,13 @@ const SongCard: React.FC<props & StackProps> = ({
           size="lg"
           colorScheme="blackAlpha"
           icon={
-            isPlaying && currentPlaybackId === playbackId ? (
-              <AiFillPauseCircle size="32" />
-            ) : (
-              <AiFillPlayCircle size="32" />
-            )
+            playbackState.current === playbackId ? (
+              playbackState.isPlaying ? (
+                <AiFillPauseCircle size="32" />
+              ) : (
+                <AiFillPlayCircle size="32" />
+              )
+            ) : undefined
           }
           aria-label={"play"}
           onClick={handlePlayback}
@@ -88,13 +86,15 @@ const SongCard: React.FC<props & StackProps> = ({
         />
       </Box>
       <Box>
-        <Text fontWeight={"bold"}>{title}</Text>
-        <Text fontSize={"sm"}>
+        <Text noOfLines={1} fontWeight={"bold"}>
+          {title}
+        </Text>
+        <Text noOfLines={1} fontSize={"sm"}>
           <Link href={`/view/album/${album.id}`}>
             <a>{album.title}</a>
           </Link>
         </Text>
-        <Text fontSize={"xs"}>
+        <Text noOfLines={1} fontSize={"xs"}>
           <Link href={`/view/artist/${artist}`}>
             <a>{artist}</a>
           </Link>

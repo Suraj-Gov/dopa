@@ -3,23 +3,25 @@ import { useQuery } from "react-query";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { jsSongI } from "../../types/jioSaavn";
-import SongCard from "./SongCard";
-import PlaybackContext from "../context/playbackContext";
+import SongCard from "./Cards/SongCard";
+import { useDispatch, useSelector } from "react-redux";
+import { playbackStoreStateT } from "../store";
+import { playbackActions } from "../slices/playbackSlice";
 
 interface props {}
 
 const Player: React.FC<props> = () => {
-  const {
-    playbackContext: { isPlaying, playbackId },
-    setPlaybackContext,
-  } = useContext(PlaybackContext);
   const [playbackUrl, setPlaybackUrl] = useState("");
+  const playbackState = useSelector(
+    (state: playbackStoreStateT) => state.playback
+  );
+  const dispatch = useDispatch();
 
   const playbackDetails = useQuery(
-    ["playback", playbackId],
-    async () => await axios.get<jsSongI>(`/song/${playbackId}`),
+    ["playback", playbackState.current],
+    async () => await axios.get<jsSongI>(`/song/${playbackState.current}`),
     {
-      enabled: !!playbackId,
+      enabled: !!playbackState.current,
       onSuccess: (res) => {
         setPlaybackUrl(res.data.encrypted_media_url);
       },
@@ -30,19 +32,17 @@ const Player: React.FC<props> = () => {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.onplay = () =>
-        setPlaybackContext((x) => ({ ...x, isPlaying: true }));
-      audioRef.current.onpause = () =>
-        setPlaybackContext((x) => ({ ...x, isPlaying: false }));
-      if (isPlaying) {
+      audioRef.current.onplay = () => dispatch(playbackActions.toggle(true));
+      audioRef.current.onpause = () => dispatch(playbackActions.toggle(false));
+      if (playbackState.isPlaying) {
         audioRef.current.play();
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, setPlaybackContext]);
+  }, [dispatch, playbackState.isPlaying]);
 
-  if (!playbackId) {
+  if (!playbackState.current) {
     return null;
   }
 
@@ -67,7 +67,7 @@ const Player: React.FC<props> = () => {
               }}
               artists={playbackDetails.data?.data.primary_artists ?? "-"}
               imageUrl={playbackDetails.data?.data.image!}
-              playbackId={playbackId}
+              playbackId={playbackState.current}
               title={
                 playbackDetails.data?.data.song ??
                 playbackDetails.data?.data.title ??

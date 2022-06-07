@@ -14,8 +14,8 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
 import React, { useMemo } from "react";
 import { jsAnyI, jsEntityType } from "../../../types/jioSaavn";
-import Card from "../../components/Card";
-import SongCard from "../../components/SongCard";
+import Card from "../../components/BaseCard";
+import SongCard from "../../components/Cards/SongCard";
 import { toNameCase } from "../../helpers";
 
 interface props {
@@ -116,7 +116,6 @@ const EntityPage: React.FC<props> = ({ data }) => {
                       <Card
                         key={i.id}
                         imageUrl={i.image}
-                        onClick={() => {}}
                         overlayChildren={
                           <Text color="white" m="2">
                             {i.year}
@@ -140,11 +139,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   </Heading>
                   <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
                     {data?.similarArtists?.map((i) => (
-                      <Card
-                        key={i.id}
-                        imageUrl={i.image ?? i.image_url}
-                        onClick={() => {}}
-                      >
+                      <Card key={i.id} imageUrl={i.image ?? i.image_url}>
                         <Link href={`/view/artist/${i.name}`}>
                           <a>
                             <Text fontWeight={"bold"}>{i.name}</Text>
