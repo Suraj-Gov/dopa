@@ -39,6 +39,7 @@ export interface jsAlbumI extends jsBaseI, jsMoreInfoI {
   primary_artists: string;
   primary_artists_id: string;
   albumid: string;
+  music: string /** artist's name */;
   songs?: jsSongI[] /** available when fetched by id */;
 }
 
@@ -64,7 +65,7 @@ export interface jsSongI extends jsBaseI, jsMoreInfoI {
   song: string /** title of the song */;
   album: string;
   type: "song";
-  music: string /** (unconfirmed) artist's name */;
+  music: string /** artist's name */;
   music_id: string /** not used anywhere yet */;
   primary_artists: string /** comma separated */;
   primary_artists_id: string /** comma separated */;

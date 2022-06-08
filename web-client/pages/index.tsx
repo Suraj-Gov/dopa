@@ -22,6 +22,7 @@ import {
 import Card from "../components/BaseCard";
 import Link from "next/link";
 import { resolveUrl, toNameCase } from "../helpers";
+import CardsContainer from "../components/Containers/CardsContainer";
 
 const Home: NextPage = () => {
   const getTrending = useQuery(
@@ -42,7 +43,7 @@ const Home: NextPage = () => {
           <Heading size="md" my="4">
             Trending
           </Heading>
-          <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]}>
+          <CardsContainer>
             {getTrending.data?.data?.new_trending?.map((i) => (
               <Card
                 overlayChildren={
@@ -51,7 +52,6 @@ const Home: NextPage = () => {
                   </Text>
                 }
                 imageUrl={i.image}
-                onClick={() => {}}
                 key={i.id}
               >
                 <Link href={resolveUrl(i)}>
@@ -61,13 +61,13 @@ const Home: NextPage = () => {
                 </Link>
               </Card>
             ))}
-          </SimpleGrid>
+          </CardsContainer>
           <Heading size="md" my="4">
             Chartbusters
           </Heading>
           <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]}>
             {getTrending?.data?.data?.charts?.map((i) => (
-              <Card key={i.id} imageUrl={i.image} onClick={() => {}}>
+              <Card key={i.id} imageUrl={i.image}>
                 <Link href={resolveUrl(i)}>
                   <a>
                     <Text fontWeight={"bold"}>{i.title}</Text>

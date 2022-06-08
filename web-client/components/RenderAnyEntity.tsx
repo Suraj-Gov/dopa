@@ -8,6 +8,8 @@ import { playbackStoreStateT } from "../store";
 import Card from "./BaseCard";
 import SongCard from "./Cards/SongCard";
 import { BiAlbum } from "react-icons/bi";
+import { BsFillPersonFill } from "react-icons/bs";
+import { RiPlayListLine } from "react-icons/ri";
 import { IconBaseProps } from "react-icons";
 import EntityPlaybackButton from "./EntityPlaybackButton";
 
@@ -60,26 +62,60 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
                 </Text>
               </a>
             </Link>
+            <Link href={`/view/artist/${entity.music}`}>
+              <a>
+                <Text noOfLines={1} fontSize="sm">
+                  {entity.music}
+                </Text>
+              </a>
+            </Link>
           </Card>
         );
       }
-      case "artist":
+      case "artist": {
+        const artistId = entity.url?.split("/").pop();
         return (
           <Card
             imageUrl={entity.image}
-            overlayChildren={<Text>Artist</Text>}
+            overlayChildren={
+              <Icon m="2" size="1.2rem" color="white" as={BsFillPersonFill} />
+            }
             title={entity.title}
           >
-            {null}
+            <Link href={`/view/artist?id=${artistId}`}>
+              <a>
+                <Text noOfLines={2} fontWeight={700}>
+                  {entity.title}
+                </Text>
+              </a>
+            </Link>
           </Card>
         );
-      case "playlist":
-        return <Text>Playlist</Text>;
+      }
+      case "playlist": {
+        return (
+          <Card
+            imageUrl={entity.image}
+            overlayChildren={
+              <Icon m="2" size="1.2rem" color="white" as={RiPlayListLine} />
+            }
+            title={entity.title}
+          >
+            <Link href={`/view/playlist/${entity.id}`}>
+              <a>
+                <Text noOfLines={2} fontWeight={700}>
+                  {entity.title}
+                </Text>
+              </a>
+            </Link>
+          </Card>
+        );
+      }
     }
 
     console.log("got nothing");
 
-    return <>JSON.stringify(entity)</>;
+    return null;
   }, [entity]);
 
   return render;

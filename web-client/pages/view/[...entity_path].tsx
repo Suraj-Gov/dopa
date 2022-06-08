@@ -16,6 +16,7 @@ import React, { useMemo } from "react";
 import { jsAnyI, jsEntityType } from "../../../types/jioSaavn";
 import Card from "../../components/BaseCard";
 import SongCard from "../../components/Cards/SongCard";
+import SongCardsContainer from "../../components/Containers/SongCardsContainer";
 import { toNameCase } from "../../helpers";
 
 interface props {
@@ -157,7 +158,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
       case "playlist":
         return (
           <>
-            <SimpleGrid columns={[1, 2]} spacing={[4, 6]}>
+            <SongCardsContainer>
               {(data.list ?? data.songs)?.map((i) => (
                 <SongCard
                   playbackId={i.id}
@@ -168,7 +169,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   title={i.title ?? i.song}
                 />
               ))}
-            </SimpleGrid>
+            </SongCardsContainer>
           </>
         );
 
