@@ -23,6 +23,7 @@ import Card from "../components/BaseCard";
 import Link from "next/link";
 import { resolveUrl, toNameCase } from "../helpers";
 import CardsContainer from "../components/Containers/CardsContainer";
+import RenderAnyEntity from "../components/RenderAnyEntity";
 
 const Home: NextPage = () => {
   const getTrending = useQuery(
@@ -40,42 +41,16 @@ const Home: NextPage = () => {
       {getTrending.isLoading && <Spinner />}
       {getTrending.isSuccess && (
         <>
-          <Heading size="md" my="4">
-            Trending
-          </Heading>
           <CardsContainer>
             {getTrending.data?.data?.new_trending?.map((i) => (
-              <Card
-                overlayChildren={
-                  <Text m="2" color="white" size="sm">
-                    {toNameCase(i.type)}
-                  </Text>
-                }
-                imageUrl={i.image}
-                key={i.id}
-              >
-                <Link href={resolveUrl(i)}>
-                  <a>
-                    <Text fontWeight={"bold"}>{i.title}</Text>
-                  </a>
-                </Link>
-              </Card>
+              <RenderAnyEntity entity={i} key={i.id} asCard />
             ))}
           </CardsContainer>
-          <Heading size="md" my="4">
-            Chartbusters
-          </Heading>
-          <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]}>
+          <CardsContainer>
             {getTrending?.data?.data?.charts?.map((i) => (
-              <Card key={i.id} imageUrl={i.image}>
-                <Link href={resolveUrl(i)}>
-                  <a>
-                    <Text fontWeight={"bold"}>{i.title}</Text>
-                  </a>
-                </Link>
-              </Card>
+              <RenderAnyEntity entity={i} key={i.id} />
             ))}
-          </SimpleGrid>
+          </CardsContainer>
         </>
       )}
     </>

@@ -61,7 +61,7 @@ const SongCard: React.FC<props & StackProps> = ({
           alt={"album-art"}
         />
       </Box>
-      <Box>
+      <Box maxW={"13rem"}>
         <Text noOfLines={1} fontWeight={"bold"}>
           {title}
         </Text>

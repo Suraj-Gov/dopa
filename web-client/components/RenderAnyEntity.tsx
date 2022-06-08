@@ -8,16 +8,17 @@ import { playbackStoreStateT } from "../store";
 import Card from "./BaseCard";
 import SongCard from "./Cards/SongCard";
 import { BiAlbum } from "react-icons/bi";
-import { BsFillPersonFill } from "react-icons/bs";
+import { BsFillPersonFill, BsMusicNoteBeamed } from "react-icons/bs";
 import { RiPlayListLine } from "react-icons/ri";
 import { IconBaseProps } from "react-icons";
 import EntityPlaybackButton from "./EntityPlaybackButton";
 
 interface props {
   entity?: jsAnyI;
+  asCard?: boolean;
 }
 
-const RenderAnyEntity: React.FC<props> = ({ entity }) => {
+const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
   const playbackState = useSelector(
     (state: playbackStoreStateT) => state.playback
   );
@@ -26,7 +27,29 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
   const render = useMemo(() => {
     switch (entity?.type) {
       case "song":
-        return (
+        return asCard ? (
+          <Card
+            overlayChildren={
+              <>
+                <Icon
+                  m="2"
+                  color="white"
+                  size="1.2rem"
+                  as={BsMusicNoteBeamed}
+                />
+                <EntityPlaybackButton
+                  size="3rem"
+                  sourceId={entity.id}
+                  queueItems={[entity.id]}
+                />
+              </>
+            }
+            imageUrl={entity.image}
+            key={entity.id}
+          >
+            <Text fontWeight={"bold"}>{entity.title}</Text>
+          </Card>
+        ) : (
           <SongCard
             album={{ id: entity.albumid, title: entity.album }}
             artists={
@@ -38,7 +61,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
           />
         );
       case "album": {
-        const albumSongs = entity.more_info?.song_pids.split(", ") ?? [];
+        const albumSongs = entity.more_info?.song_pids?.split(", ") ?? [];
 
         return (
           <Card
@@ -46,11 +69,13 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
             overlayChildren={
               <>
                 <Icon m="2" size="1.2rem" color="white" as={BiAlbum} />
-                <EntityPlaybackButton
-                  queueItems={albumSongs}
-                  size="3rem"
-                  sourceId={entity.id}
-                />
+                {albumSongs && (
+                  <EntityPlaybackButton
+                    queueItems={albumSongs}
+                    size="3rem"
+                    sourceId={entity.id}
+                  />
+                )}
               </>
             }
             title={entity.title}
@@ -116,7 +141,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
     console.log("got nothing");
 
     return null;
-  }, [entity]);
+  }, [entity, asCard]);
 
   return render;
 };
