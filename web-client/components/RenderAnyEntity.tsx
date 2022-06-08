@@ -1,8 +1,8 @@
 import { Box, Center, Icon, IconButton, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import React, { useContext, useMemo } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { jsAnyI } from "../../types/jioSaavn";
+import { jsAnyI, jsPlaylistI } from "../../types/jioSaavn";
 import { playbackActions } from "../slices/playbackSlice";
 import { playbackStoreStateT } from "../store";
 import Card from "./BaseCard";
@@ -12,9 +12,11 @@ import { BsFillPersonFill, BsMusicNoteBeamed } from "react-icons/bs";
 import { RiPlayListLine } from "react-icons/ri";
 import { IconBaseProps } from "react-icons";
 import EntityPlaybackButton from "./EntityPlaybackButton";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 interface props {
-  entity?: jsAnyI;
+  entity: jsAnyI;
   asCard?: boolean;
 }
 
@@ -23,6 +25,21 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
     (state: playbackStoreStateT) => state.playback
   );
   const dispatch = useDispatch();
+
+  const playlistSongsQuery = useQuery(
+    [entity.type, entity.id],
+    async () => await axios.get<jsPlaylistI>(`/playlist/${entity.id}`),
+    {
+      enabled: false,
+    }
+  );
+
+  const playSongsInPlaylist = useCallback(async () => {
+    const res = await playlistSongsQuery.refetch();
+    const songs = res.data?.data.songs.map((i) => i.id) ?? [];
+    dispatch(playbackActions.setQueue({ sourceId: entity.id, songs }));
+    dispatch(playbackActions.unqueue());
+  }, [dispatch, entity.id, playlistSongsQuery]);
 
   const render = useMemo(() => {
     switch (entity?.type) {
@@ -122,7 +139,14 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
           <Card
             imageUrl={entity.image}
             overlayChildren={
-              <Icon m="2" size="1.2rem" color="white" as={RiPlayListLine} />
+              <>
+                <Icon m="2" size="1.2rem" color="white" as={RiPlayListLine} />
+                <EntityPlaybackButton
+                  size="3rem"
+                  sourceId={entity.id}
+                  onClick={playSongsInPlaylist}
+                />
+              </>
             }
             title={entity.title}
           >
@@ -141,7 +165,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
     console.log("got nothing");
 
     return null;
-  }, [entity, asCard]);
+  }, [entity, asCard, playSongsInPlaylist]);
 
   return render;
 };

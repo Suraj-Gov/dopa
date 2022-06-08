@@ -6,7 +6,8 @@ import { playbackActions } from "../slices/playbackSlice";
 import { playbackStoreStateT } from "../store";
 
 interface props {
-  queueItems: string[];
+  queueItems?: string[];
+  onClick?: () => void;
   sourceId: string;
   size?: string;
 }
@@ -15,6 +16,7 @@ const EntityPlaybackButton: React.FC<props> = ({
   size,
   queueItems,
   sourceId,
+  onClick,
 }) => {
   const playbackState = useSelector(
     (state: playbackStoreStateT) => state.playback
@@ -28,13 +30,17 @@ const EntityPlaybackButton: React.FC<props> = ({
     if (isCurrentSource) {
       dispatch(playbackActions.toggle());
     } else {
-      dispatch(
-        playbackActions.setQueue({
-          songs: queueItems,
-          sourceId,
-        })
-      );
-      dispatch(playbackActions.unqueue());
+      if (queueItems) {
+        dispatch(
+          playbackActions.setQueue({
+            songs: queueItems,
+            sourceId,
+          })
+        );
+        dispatch(playbackActions.unqueue());
+      } else if (onClick) {
+        onClick();
+      }
     }
   };
 
