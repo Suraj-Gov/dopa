@@ -27,6 +27,7 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const path = context.params?.entity_path as [jsEntityType, string];
+  const query = context.query;
   if (!path || path.length < 2) {
     return {
       notFound: true,
@@ -34,7 +35,9 @@ export const getServerSideProps = async (
   }
 
   const [entityType, id] = path;
-  const { data } = await axios.get<jsAnyI>(`/${entityType}/${id}`);
+  const { data } = await axios.get<jsAnyI>(`/${entityType}/${id}`, {
+    params: query,
+  });
 
   return {
     props: {

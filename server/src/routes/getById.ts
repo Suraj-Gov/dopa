@@ -17,7 +17,10 @@ import { decryptSongUrl } from "../utils";
 
 const handlers = {
   entityById: async (
-    req: FastifyRequest<{ Params: { entityType: jsEntityType; id: string } }>,
+    req: FastifyRequest<{
+      Params: { entityType: jsEntityType; id: string };
+      Querystring?: { token: string };
+    }>,
     reply: FastifyReply
   ) => {
     const { entityType, id } = req.params;
@@ -37,6 +40,11 @@ const handlers = {
         url = jioSaavnEndpoint.playlistById(id);
         break;
       case "artist":
+        if (req.query?.token) {
+          const { token } = req.query;
+          url = jioSaavnEndpoint.artistByToken(token);
+          break;
+        }
         const searchUrl = jioSaavnEndpoint.search(
           decodeURIComponent(id + " artist")
         );

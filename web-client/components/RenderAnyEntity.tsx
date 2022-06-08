@@ -82,7 +82,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity }) => {
             }
             title={entity.title}
           >
-            <Link href={`/view/artist?id=${artistId}`}>
+            <Link href={`/view/artist/${entity.title}?token=${artistId}`}>
               <a>
                 <Text noOfLines={2} fontWeight={700}>
                   {entity.title}
