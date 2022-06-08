@@ -10,6 +10,7 @@ interface props {
   onClick?: () => void;
   sourceId: string;
   size?: string;
+  isSong?: boolean;
 }
 
 const EntityPlaybackButton: React.FC<props> = ({
@@ -17,6 +18,7 @@ const EntityPlaybackButton: React.FC<props> = ({
   queueItems,
   sourceId,
   onClick,
+  isSong,
 }) => {
   const playbackState = useSelector(
     (state: playbackStoreStateT) => state.playback
@@ -55,7 +57,7 @@ const EntityPlaybackButton: React.FC<props> = ({
   );
 
   return (
-    <Center>
+    <Center height={isSong ? ["3rem", "4rem"] : ["9rem", "8rem"]}>
       <IconButton
         mixBlendMode={"lighten"}
         sx={{

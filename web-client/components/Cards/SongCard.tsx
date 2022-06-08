@@ -52,6 +52,7 @@ const SongCard: React.FC<props & StackProps> = ({
             size="3rem"
             sourceId={playbackId}
             queueItems={[playbackId]}
+            isSong
           />
         </Box>
         <Image
@@ -61,7 +62,7 @@ const SongCard: React.FC<props & StackProps> = ({
           alt={"album-art"}
         />
       </Box>
-      <Box maxW={"13rem"}>
+      <Box maxW={["17rem", "13rem"]}>
         <Text noOfLines={1} fontWeight={"bold"}>
           {title}
         </Text>

@@ -24,14 +24,19 @@ const Card: React.FC<props> = ({
       <Box position={"relative"}>
         {overlayChildren && (
           <>
-            <Box zIndex={"6"} position={"absolute"} inset="0">
+            <Box
+              width={["9rem", "8rem"]}
+              zIndex={"6"}
+              position={"absolute"}
+              inset="0"
+            >
               {overlayChildren}
             </Box>
             <Box
               zIndex={"5"}
               sx={{
                 background:
-                  "linear-gradient(0deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.5) 100%)",
+                  "linear-gradient(-45deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%)",
                 opacity: 0.5,
               }}
               position="absolute"

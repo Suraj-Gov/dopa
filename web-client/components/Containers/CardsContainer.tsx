@@ -10,7 +10,12 @@ const CardsContainer: React.FC<props & SimpleGridProps> = ({
   ...rest
 }) => {
   return (
-    <SimpleGrid columns={[2, 3, 4]} spacing={[4, 8, 12]} {...rest}>
+    <SimpleGrid
+      justifyItems={"center"}
+      columns={[2, 3, 4]}
+      spacing={[4, 8, 12]}
+      {...rest}
+    >
       {children}
     </SimpleGrid>
   );

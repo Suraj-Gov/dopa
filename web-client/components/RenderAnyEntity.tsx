@@ -1,4 +1,11 @@
-import { Box, Center, Icon, IconButton, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Icon,
+  IconButton,
+  IconProps,
+  Text,
+} from "@chakra-ui/react";
 import Link from "next/link";
 import React, { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +26,13 @@ interface props {
   entity: jsAnyI;
   asCard?: boolean;
 }
+
+const entityTypeIconProps: IconProps = {
+  position: "absolute",
+  m: "3",
+  boxSize: "5",
+  color: "white",
+};
 
 const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
   const playbackState = useSelector(
@@ -48,12 +62,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
           <Card
             overlayChildren={
               <>
-                <Icon
-                  m="2"
-                  color="white"
-                  size="1.2rem"
-                  as={BsMusicNoteBeamed}
-                />
+                <Icon {...entityTypeIconProps} as={BsMusicNoteBeamed} />
                 <EntityPlaybackButton
                   size="3rem"
                   sourceId={entity.id}
@@ -85,7 +94,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
             imageUrl={entity.image}
             overlayChildren={
               <>
-                <Icon m="2" size="1.2rem" color="white" as={BiAlbum} />
+                <Icon {...entityTypeIconProps} as={BiAlbum} />
                 {albumSongs && (
                   <EntityPlaybackButton
                     queueItems={albumSongs}
@@ -120,7 +129,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
           <Card
             imageUrl={entity.image}
             overlayChildren={
-              <Icon m="2" size="1.2rem" color="white" as={BsFillPersonFill} />
+              <Icon {...entityTypeIconProps} as={BsFillPersonFill} />
             }
             title={entity.title}
           >
@@ -140,7 +149,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
             imageUrl={entity.image}
             overlayChildren={
               <>
-                <Icon m="2" size="1.2rem" color="white" as={RiPlayListLine} />
+                <Icon {...entityTypeIconProps} as={RiPlayListLine} />
                 <EntityPlaybackButton
                   size="3rem"
                   sourceId={entity.id}
