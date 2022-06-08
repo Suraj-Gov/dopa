@@ -24,12 +24,7 @@ const Card: React.FC<props> = ({
       <Box position={"relative"}>
         {overlayChildren && (
           <>
-            <Box
-              width={["9rem", "8rem"]}
-              zIndex={"6"}
-              position={"absolute"}
-              inset="0"
-            >
+            <Box zIndex={"6"} position={"absolute"} inset="0">
               {overlayChildren}
             </Box>
             <Box
@@ -45,6 +40,8 @@ const Card: React.FC<props> = ({
           </>
         )}
         <Image
+          boxSize={"36"}
+          backgroundColor={"gray"}
           loading="lazy"
           cursor={"pointer"}
           borderRadius={"8px"}

@@ -1,4 +1,22 @@
-import { Box, Heading, SimpleGrid, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Container,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  Flex,
+  Heading,
+  HStack,
+  IconButton,
+  SimpleGrid,
+  Spacer,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import axios from "axios";
 import Link from "next/link";
@@ -12,12 +30,14 @@ import SongCard from "./Cards/SongCard";
 import RenderAnyEntity from "./RenderAnyEntity";
 import CardsContainer from "./Containers/CardsContainer";
 import SongCardsContainer from "./Containers/SongCardsContainer";
+import { GrClose } from "react-icons/gr";
 
 interface props {}
 
 const Search: React.FC<props> = () => {
   const [searchStr, setSearchStr] = useState("");
   const [debouncedSearchStr] = useDebouncedValue(searchStr, 500);
+  const searchDrawerDisc = useDisclosure();
 
   const searchResults = useQuery(
     [debouncedSearchStr, "search"],
@@ -83,7 +103,7 @@ const Search: React.FC<props> = () => {
       );
 
       return (
-        <Stack spacing="6">
+        <Stack position={"relative"} spacing="6">
           {topQuerySection}
           {songsSection}
           {artistsSection}
@@ -98,10 +118,40 @@ const Search: React.FC<props> = () => {
   return (
     <>
       <SearchBar
+        onClick={searchDrawerDisc.onOpen}
         value={searchStr}
         onChange={({ target: { value } }) => setSearchStr(value)}
       />
-      {renderSearchResults}
+      <Drawer
+        allowPinchZoom={false}
+        returnFocusOnClose={false}
+        placement="bottom"
+        isOpen={searchDrawerDisc.isOpen}
+        onClose={searchDrawerDisc.onClose}
+        isFullHeight
+      >
+        <DrawerContent bgColor={"gray.100"} borderRadius="6">
+          <DrawerBody px="4" pb="12">
+            <Container position="relative" p="0" size="md">
+              <SearchBar
+                rightElement={
+                  <IconButton
+                    border="none"
+                    background="none"
+                    aria-label="Close"
+                    icon={<GrClose />}
+                    onClick={searchDrawerDisc.onClose}
+                  />
+                }
+                onClick={searchDrawerDisc.onOpen}
+                value={searchStr}
+                onChange={({ target: { value } }) => setSearchStr(value)}
+              />
+              {renderSearchResults}
+            </Container>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
+import { Box, ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
 import "@fontsource/overpass";
 import axios from "axios";
 import type { AppProps } from "next/app";
@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <Provider store={playbackStore}>
-          <Container size="md">
+          <Container position={"relative"} maxW="2xl">
             <Search />
             <Component {...pageProps} />
             <Player />

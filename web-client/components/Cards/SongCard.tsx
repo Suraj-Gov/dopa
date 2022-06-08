@@ -57,12 +57,12 @@ const SongCard: React.FC<props & StackProps> = ({
         </Box>
         <Image
           borderRadius={"4px"}
-          width={["3rem", "4rem"]}
+          width={["4rem", "5rem"]}
           src={imageUrl}
           alt={"album-art"}
         />
       </Box>
-      <Box maxW={["17rem", "13rem"]}>
+      <Box maxW={["16rem", "12rem"]}>
         <Text noOfLines={1} fontWeight={"bold"}>
           {title}
         </Text>
