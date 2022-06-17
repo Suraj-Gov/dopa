@@ -1,9 +1,14 @@
-import { Box, ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
+import {
+  Box,
+  ChakraProvider,
+  Container,
+  extendTheme,
+  useToast,
+} from "@chakra-ui/react";
 import "@fontsource/overpass";
 import axios from "axios";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Player from "../components/Player";
 import Search from "../components/Search";
@@ -11,6 +16,7 @@ import { isProd } from "../constants";
 import { Provider } from "react-redux";
 import "../styles/globals.css";
 import { playbackStore } from "../store";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +37,21 @@ const theme = extendTheme({
 axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const toast = useToast();
+
+  useEffect(() => {
+    axios.interceptors.response.use((res) => {
+      if (res.status >= 400) {
+        toast({
+          status: "error",
+          title: "Something went wrong",
+          description: `${res.status} - ${res.statusText}`,
+        });
+      }
+      return res;
+    });
+  }, [toast]);
+
   return (
     <ChakraProvider theme={theme}>
       <Head>

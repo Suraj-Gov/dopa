@@ -1,4 +1,4 @@
-import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Text, useMediaQuery } from "@chakra-ui/react";
 import { useQuery } from "react-query";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -16,6 +16,8 @@ const Player: React.FC<props> = () => {
     (state: playbackStoreStateT) => state.playback
   );
   const dispatch = useDispatch();
+
+  const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
 
   const playbackDetails = useQuery(
     ["playback", playbackState.current],
@@ -58,7 +60,7 @@ const Player: React.FC<props> = () => {
         <Spinner />
       ) : (
         <>
-          <Flex alignItems={"center"}>
+          <Flex flexDir={isMobile ? "column" : "row"} alignItems={"center"}>
             <SongCard
               mr="4"
               album={{
