@@ -76,9 +76,9 @@ const SongCard: React.FC<props & StackProps> = ({
             <>
               <Link
                 key={a.id}
-                href={`/view/artist/${a.id}?token=${a.perma_url
-                  ?.split("/")
-                  .pop()}`}
+                href={`/view/artist/${a.id}?token=${
+                  a.perma_url?.split("/").pop() ?? ""
+                }`}
               >
                 <a>{a.name}</a>
               </Link>

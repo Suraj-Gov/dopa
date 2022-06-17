@@ -5,7 +5,7 @@ import React, { memo } from "react";
 interface props {
   overlayChildren?: React.ReactNode;
   imageUrl: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title?: string;
   url?: string;
 }

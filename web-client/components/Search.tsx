@@ -1,36 +1,24 @@
 import {
-  Box,
-  Center,
   Container,
   Drawer,
   DrawerBody,
-  DrawerCloseButton,
   DrawerContent,
-  DrawerHeader,
-  Flex,
-  Heading,
-  HStack,
   IconButton,
-  SimpleGrid,
-  Spacer,
   Stack,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import axios from "axios";
-import Link from "next/link";
 import React, { useMemo, useState } from "react";
+import { GrClose } from "react-icons/gr";
 import { useQuery } from "react-query";
-import { jsAnyI, jsSearchResultsI } from "../../types/jioSaavn";
-import { toNameCase, resolveUrl } from "../helpers";
-import Card from "./BaseCard";
-import SearchBar from "./SearchBar";
+import { jsSearchResultsI } from "../../types/jioSaavn";
 import SongCard from "./Cards/SongCard";
-import RenderAnyEntity from "./RenderAnyEntity";
 import CardsContainer from "./Containers/CardsContainer";
 import SongCardsContainer from "./Containers/SongCardsContainer";
-import { GrClose } from "react-icons/gr";
+import RenderAnyEntity from "./RenderAnyEntity";
+import SearchBar from "./SearchBar";
 
 interface props {}
 

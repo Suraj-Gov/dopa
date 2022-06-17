@@ -76,6 +76,8 @@ export interface jsSongI extends jsBaseI, jsMoreInfoI {
   type: "song";
   music: string /** artist's name */;
   music_id: string /** not used anywhere yet */;
+  primary_artists?: jsBriefArtistsI[] | string /** comma separated */;
+  primary_artists_id?: string /** comma separated */;
   artistMap?: {
     artists?: jsBriefArtistsI[];
     primary_artists: jsBriefArtistsI[] | string /** comma separated */;
