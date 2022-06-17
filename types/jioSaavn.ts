@@ -14,6 +14,15 @@ interface jsArtistMapI {
   name: string;
 }
 
+export interface jsBriefArtistsI {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  type: "artist";
+  perma_url: string;
+}
+
 interface jsMoreInfoI {
   more_info?: {
     album_id: string;
@@ -21,7 +30,7 @@ interface jsMoreInfoI {
     encrypted_media_url: string;
     query: string;
     text: string;
-    primary_artists?: string /** the artist's name */;
+    primary_artists?: jsBriefArtistsI[] | string /** the artist's name */;
     music?: string /** the artist's name */;
     song_count: string /** integer */;
     song_pids: string /** csv song pids */;
@@ -67,10 +76,13 @@ export interface jsSongI extends jsBaseI, jsMoreInfoI {
   type: "song";
   music: string /** artist's name */;
   music_id: string /** not used anywhere yet */;
-  primary_artists: string /** comma separated */;
-  primary_artists_id: string /** comma separated */;
-  featured_artists?: string /** comma separated */;
-  featured_artists_id?: string /** comma separated */;
+  artistMap?: {
+    artists?: jsBriefArtistsI[];
+    primary_artists: jsBriefArtistsI[] | string /** comma separated */;
+    primary_artists_id: string /** comma separated */;
+    featured_artists?: jsBriefArtistsI[] | string /** comma separated */;
+    featured_artists_id?: string /** comma separated */;
+  };
   singers: string /** comma separated */;
   starring?: string;
   label: string;

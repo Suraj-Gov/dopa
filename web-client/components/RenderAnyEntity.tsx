@@ -78,9 +78,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
         ) : (
           <SongCard
             album={{ id: entity.albumid, title: entity.album }}
-            artists={
-              entity.more_info?.primary_artists ?? entity.primary_artists
-            }
+            artists={entity.more_info?.artistMap?.artists ?? []}
             imageUrl={entity.image}
             playbackId={entity.id}
             title={entity.title}

@@ -65,7 +65,7 @@ const Player: React.FC<props> = () => {
                 id: playbackDetails.data?.data.albumid ?? "-",
                 title: playbackDetails.data?.data?.album ?? "-",
               }}
-              artists={playbackDetails.data?.data.primary_artists ?? "-"}
+              artists={playbackDetails.data?.data.artistMap?.artists ?? []}
               imageUrl={playbackDetails.data?.data.image!}
               playbackId={playbackState.current}
               title={

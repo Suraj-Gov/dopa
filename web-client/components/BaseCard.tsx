@@ -1,4 +1,5 @@
 import { Box, Text, Image } from "@chakra-ui/react";
+import Link from "next/link";
 import React, { memo } from "react";
 
 interface props {
@@ -54,7 +55,13 @@ const Card: React.FC<props> = ({
       overflow="hidden"
       position={"relative"}
     >
-      {url ? <a href={url}>{CardImage}</a> : CardImage}
+      {url ? (
+        <Link href={url}>
+          <a>{CardImage}</a>
+        </Link>
+      ) : (
+        CardImage
+      )}
       <Box mt="2">{children}</Box>
     </Box>
   );

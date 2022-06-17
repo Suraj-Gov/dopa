@@ -69,7 +69,7 @@ const Search: React.FC<props> = () => {
             <SongCard
               key={s.id}
               album={{ id: s.albumid, title: s.album }}
-              artists={s.more_info?.primary_artists ?? s.primary_artists}
+              artists={s.more_info?.artistMap?.artists ?? []}
               imageUrl={s.image}
               playbackId={s.id}
               title={s.title}

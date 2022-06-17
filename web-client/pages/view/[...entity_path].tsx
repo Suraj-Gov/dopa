@@ -59,7 +59,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                 <SongCard
                   playbackId={i.id}
                   album={{ id: i.albumid, title: i.album }}
-                  artists={i.primary_artists}
+                  artists={i.more_info?.artistMap?.artists ?? []}
                   imageUrl={i.image}
                   title={i.song ?? i.title}
                   key={i.id}
@@ -90,7 +90,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                         playbackId={i.id}
                         key={i.id}
                         album={{ id: i.albumid, title: i.album }}
-                        artists={i.primary_artists}
+                        artists={i.more_info?.artistMap?.artists ?? []}
                         imageUrl={i.image}
                         title={i.song ?? i.title}
                       />
@@ -102,7 +102,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                         playbackId={i.id}
                         key={i.id}
                         album={{ id: i.albumid, title: i.album }}
-                        artists={i.primary_artists}
+                        artists={i.more_info?.artistMap?.artists ?? []}
                         imageUrl={i.image}
                         title={i.title}
                       />
@@ -167,7 +167,7 @@ const EntityPage: React.FC<props> = ({ data }) => {
                   playbackId={i.id}
                   key={i.id}
                   album={{ id: i.albumid, title: i.album }}
-                  artists={i.primary_artists}
+                  artists={i.more_info?.artistMap?.artists ?? []}
                   imageUrl={i.image}
                   title={i.title ?? i.song}
                 />
