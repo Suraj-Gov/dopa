@@ -1,12 +1,12 @@
-import { Center, IconButton } from "@chakra-ui/react";
-import React from "react";
+import { Center, IconButton, Spinner } from "@chakra-ui/react";
+import React, { useState } from "react";
 import { BsPauseFill, BsPlayFill, BsPlay } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { playbackActions } from "../slices/playbackSlice";
 import { playbackStoreStateT } from "../store";
 
 interface props {
-  queueItems?: string[];
+  queueItems?: string[] | (() => Promise<string[]>);
   onClick?: () => void;
   sourceId: string;
   size?: string;
@@ -28,14 +28,24 @@ const EntityPlaybackButton: React.FC<props> = ({
   const { isPlaying, playSource } = playbackState;
   const isCurrentSource = sourceId === playSource;
 
-  const handleClick = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClick = async () => {
     if (isCurrentSource) {
       dispatch(playbackActions.toggle());
     } else {
       if (queueItems) {
+        let songs: string[];
+        if (typeof queueItems === "function") {
+          setIsLoading(true);
+          songs = await queueItems();
+          setIsLoading(false);
+        } else {
+          songs = queueItems;
+        }
         dispatch(
           playbackActions.setQueue({
-            songs: queueItems,
+            songs: songs,
             sourceId,
           })
         );
@@ -52,6 +62,8 @@ const EntityPlaybackButton: React.FC<props> = ({
     ) : (
       <BsPlayFill size={size} />
     )
+  ) : isLoading ? (
+    <Spinner />
   ) : (
     <BsPlay size={size} />
   );

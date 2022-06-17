@@ -11,7 +11,13 @@ import axios from "axios";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import React from "react";
 import { GrMore } from "react-icons/gr";
-import { jsArtistI, jsBriefArtistsI } from "../../../../types/jioSaavn";
+import { useMutation, useQuery } from "react-query";
+import {
+  jsAlbumI,
+  jsArtistI,
+  jsBriefArtistsI,
+} from "../../../../types/jioSaavn";
+import AlbumCard from "../../../components/Cards/AlbumCard";
 import ArtistCard from "../../../components/Cards/ArtistCard";
 import SongCard from "../../../components/Cards/SongCard";
 import CardsContainer from "../../../components/Containers/CardsContainer";
@@ -48,6 +54,19 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 const ArtistPage = ({ data }: props) => {
   const songsDisc = useDisclosure();
   const albumsDisc = useDisclosure();
+
+  const getAlbumSongsQ = useMutation(
+    [data],
+    async (albumId: string) => await axios.get<jsAlbumI>(`/album/${albumId}`)
+  );
+
+  const getAlbumSongs = async (albumId: string) => {
+    const { mutateAsync } = getAlbumSongsQ;
+    const {
+      data: { songs },
+    } = await mutateAsync(albumId);
+    return songs?.map((i) => i.id) ?? [];
+  };
 
   return (
     <>
@@ -102,7 +121,20 @@ const ArtistPage = ({ data }: props) => {
               {data.topAlbums
                 .slice(0, !albumsDisc.isOpen ? 5 : undefined)
                 .map((a) => (
-                  <RenderAnyEntity entity={a} key={a.id} />
+                  <AlbumCard
+                    key={a.id}
+                    albumSongs={() => getAlbumSongs(a.id)}
+                    id={a.id}
+                    image={a.image}
+                    title={a.title}
+                    artist={{
+                      id: a.more_info?.artistMap.primary_artists[0].id,
+                      title: a.more_info?.artistMap.primary_artists[0].name,
+                      token: a.more_info?.artistMap.primary_artists[0].perma_url
+                        .split("/")
+                        .pop(),
+                    }}
+                  />
                 ))}
             </CardsContainer>
             <Center my="4">

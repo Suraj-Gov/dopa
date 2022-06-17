@@ -9,11 +9,6 @@ interface jsBaseI {
   url?: string;
 }
 
-interface jsArtistMapI {
-  id: string;
-  name: string;
-}
-
 export interface jsBriefArtistsI {
   id: string;
   name: string;
@@ -35,9 +30,9 @@ interface jsMoreInfoI {
     song_count: string /** integer */;
     song_pids: string /** csv song pids */;
     artistMap: {
-      primary_artists: jsArtistMapI[];
-      featured_artists: jsArtistMapI[];
-      artists: jsArtistMapI[];
+      primary_artists: jsBriefArtistsI[];
+      featured_artists: jsBriefArtistsI[];
+      artists: jsBriefArtistsI[];
     };
   };
 }

@@ -23,6 +23,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { entityTypeIconProps } from "../constants";
 import ArtistCard from "./Cards/ArtistCard";
+import AlbumCard from "./Cards/AlbumCard";
 
 interface props {
   entity: jsAnyI;
@@ -90,37 +91,16 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
         const albumSongs = entity.more_info?.song_pids?.split(", ") ?? [];
 
         return (
-          <Card
-            imageUrl={entity.image}
-            overlayChildren={
-              <>
-                <Icon {...entityTypeIconProps} as={BiAlbum} />
-                {albumSongs && (
-                  <EntityPlaybackButton
-                    queueItems={albumSongs}
-                    size="3rem"
-                    sourceId={entity.id}
-                  />
-                )}
-              </>
-            }
+          <AlbumCard
+            albumSongs={albumSongs}
+            id={entity.id}
+            image={entity.image}
             title={entity.title}
-          >
-            <Link href={`/view/album/${entity.id}`}>
-              <a>
-                <Text noOfLines={2} fontWeight={700}>
-                  {entity.title}
-                </Text>
-              </a>
-            </Link>
-            <Link href={`/view/artist/${entity.music}`}>
-              <a>
-                <Text noOfLines={1} fontSize="sm">
-                  {entity.music}
-                </Text>
-              </a>
-            </Link>
-          </Card>
+            artist={{
+              id: entity.music ?? entity.primary_artists_id,
+              title: entity.music ?? entity.primary_artists,
+            }}
+          />
         );
       }
       case "artist": {
