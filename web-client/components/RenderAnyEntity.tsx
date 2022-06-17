@@ -21,18 +21,13 @@ import { IconBaseProps } from "react-icons";
 import EntityPlaybackButton from "./EntityPlaybackButton";
 import { useQuery } from "react-query";
 import axios from "axios";
+import { entityTypeIconProps } from "../constants";
+import ArtistCard from "./Cards/ArtistCard";
 
 interface props {
   entity: jsAnyI;
   asCard?: boolean;
 }
-
-const entityTypeIconProps: IconProps = {
-  position: "absolute",
-  m: "3",
-  boxSize: "5",
-  color: "white",
-};
 
 const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
   const playbackState = useSelector(
@@ -133,22 +128,11 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
         const artistUrl = `/view/artist/${entity.title}?token=${artistId}`;
 
         return (
-          <Card
+          <ArtistCard
             imageUrl={entity.image}
-            overlayChildren={
-              <Icon {...entityTypeIconProps} as={BsFillPersonFill} />
-            }
-            title={entity.title}
+            name={entity.name}
             url={artistUrl}
-          >
-            <Link href={artistUrl}>
-              <a>
-                <Text noOfLines={2} fontWeight={700}>
-                  {entity.title}
-                </Text>
-              </a>
-            </Link>
-          </Card>
+          />
         );
       }
       case "playlist": {

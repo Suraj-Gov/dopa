@@ -12,6 +12,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import React from "react";
 import { GrMore } from "react-icons/gr";
 import { jsArtistI, jsBriefArtistsI } from "../../../../types/jioSaavn";
+import ArtistCard from "../../../components/Cards/ArtistCard";
 import SongCard from "../../../components/Cards/SongCard";
 import CardsContainer from "../../../components/Containers/CardsContainer";
 import SongCardsContainer from "../../../components/Containers/SongCardsContainer";
@@ -118,7 +119,25 @@ const ArtistPage = ({ data }: props) => {
           </Box>
         </Box>
       )}
-      {/* <pre>{JSON.stringify(data.topAlbums, null, 2)}</pre> */}
+      {data.similarArtists.length && (
+        <Box my="4">
+          <Heading fontSize={"xl"} as="h3">
+            Artists like {data.name}
+          </Heading>
+          <CardsContainer my="4">
+            {data.similarArtists.map((a) => (
+              <ArtistCard
+                imageUrl={a.image_url}
+                name={a.name}
+                url={`/view/artist/${a.id}?token=${
+                  a.perma_url?.split("/").pop() ?? ""
+                }`}
+                key={a.id}
+              />
+            ))}
+          </CardsContainer>
+        </Box>
+      )}
     </>
   );
 };

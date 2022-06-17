@@ -53,6 +53,7 @@ export interface jsAlbumI extends jsBaseI, jsMoreInfoI {
 }
 
 interface jsSimilarArtistI extends jsBaseI {
+  perma_url?: string;
   name: string;
   similar: string /** json format of jsArtistMapI shape */;
   image_url: string;
