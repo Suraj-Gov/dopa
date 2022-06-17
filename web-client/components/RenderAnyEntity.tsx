@@ -125,6 +125,8 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
       }
       case "artist": {
         const artistId = entity.url?.split("/").pop();
+        const artistUrl = `/view/artist/${entity.title}?token=${artistId}`;
+
         return (
           <Card
             imageUrl={entity.image}
@@ -132,8 +134,9 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
               <Icon {...entityTypeIconProps} as={BsFillPersonFill} />
             }
             title={entity.title}
+            url={artistUrl}
           >
-            <Link href={`/view/artist/${entity.title}?token=${artistId}`}>
+            <Link href={artistUrl}>
               <a>
                 <Text noOfLines={2} fontWeight={700}>
                   {entity.title}

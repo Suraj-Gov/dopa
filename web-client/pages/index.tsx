@@ -41,7 +41,7 @@ const Home: NextPage = () => {
       {getTrending.isLoading && <Spinner />}
       {getTrending.isSuccess && (
         <>
-          <CardsContainer>
+          <CardsContainer justifyItems={"center"}>
             {getTrending.data?.data?.new_trending?.map((i) => (
               <RenderAnyEntity entity={i} key={i.id} asCard />
             ))}

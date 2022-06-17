@@ -5,6 +5,7 @@ import {
   InputLeftElement,
   InputProps,
   InputRightElement,
+  Spinner,
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import React, { useState } from "react";
@@ -12,9 +13,10 @@ import { AiOutlineSearch } from "react-icons/ai";
 
 interface props extends InputProps {
   rightElement?: React.ReactNode;
+  isLoading?: boolean;
 }
 
-const SearchBar: React.FC<props> = ({ rightElement, ...rest }) => {
+const SearchBar: React.FC<props> = ({ rightElement, isLoading, ...rest }) => {
   return (
     <Center
       background="whiteAlpha.800"
@@ -27,9 +29,9 @@ const SearchBar: React.FC<props> = ({ rightElement, ...rest }) => {
     >
       <InputGroup>
         <InputLeftElement>
-          <AiOutlineSearch />
+          {isLoading ? <Spinner w="4" h="4" /> : <AiOutlineSearch />}
         </InputLeftElement>
-        <Input {...rest} />
+        <Input spellCheck={false} {...rest} />
         {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
       </InputGroup>
     </Center>

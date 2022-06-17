@@ -35,8 +35,8 @@ import { GrClose } from "react-icons/gr";
 interface props {}
 
 const Search: React.FC<props> = () => {
-  const [searchStr, setSearchStr] = useState("");
-  const [debouncedSearchStr] = useDebouncedValue(searchStr, 500);
+  const [searchQuery, setSearchStr] = useState("");
+  const [debouncedSearchStr] = useDebouncedValue(searchQuery, 500);
   const searchDrawerDisc = useDisclosure();
 
   const searchResults = useQuery(
@@ -46,12 +46,12 @@ const Search: React.FC<props> = () => {
         params: { search: debouncedSearchStr },
       }),
     {
-      enabled: Boolean(searchStr),
+      enabled: Boolean(searchQuery),
     }
   );
 
   const renderSearchResults = useMemo(() => {
-    if (searchResults.isSuccess) {
+    if (searchResults.isSuccess && searchQuery) {
       const { albums, artists, playlists, songs, topquery } =
         searchResults.data.data;
 
@@ -112,14 +112,18 @@ const Search: React.FC<props> = () => {
         </Stack>
       );
     }
-    return null;
-  }, [searchResults]);
+    return (
+      <Text textAlign={"center"}>
+        Search for music, artists, albums and more!
+      </Text>
+    );
+  }, [searchResults, searchQuery]);
 
   return (
     <>
       <SearchBar
         onClick={searchDrawerDisc.onOpen}
-        value={searchStr}
+        value={searchQuery}
         onChange={({ target: { value } }) => setSearchStr(value)}
       />
       <Drawer
@@ -134,6 +138,7 @@ const Search: React.FC<props> = () => {
           <DrawerBody px="4" pb="12">
             <Container position="relative" p="0" size="md">
               <SearchBar
+                isLoading={searchResults.isLoading}
                 rightElement={
                   <IconButton
                     border="none"
@@ -144,7 +149,7 @@ const Search: React.FC<props> = () => {
                   />
                 }
                 onClick={searchDrawerDisc.onOpen}
-                value={searchStr}
+                value={searchQuery}
                 onChange={({ target: { value } }) => setSearchStr(value)}
               />
               {renderSearchResults}
