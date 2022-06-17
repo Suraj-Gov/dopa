@@ -56,8 +56,10 @@ const EntityPlaybackButton: React.FC<props> = ({
     <BsPlay size={size} />
   );
 
+  const boxSize = isSong ? ["3rem", "4rem"] : ["9rem", "8rem"];
+
   return (
-    <Center height={isSong ? ["3rem", "4rem"] : ["9rem", "8rem"]}>
+    <Center position={"absolute"} inset="0">
       <IconButton
         mixBlendMode={"lighten"}
         sx={{
@@ -71,6 +73,7 @@ const EntityPlaybackButton: React.FC<props> = ({
             boxShadow: "none",
           },
         }}
+        boxSize={boxSize}
         background="none"
         onClick={handleClick}
         color="white"
