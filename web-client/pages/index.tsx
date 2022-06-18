@@ -28,12 +28,7 @@ import RenderAnyEntity from "../components/RenderAnyEntity";
 const Home: NextPage = () => {
   const getTrending = useQuery(
     ["trending"],
-    async () => await axios.get<jioSaavnTypes.jsTrendingI>("/trending/all"),
-    {
-      onSuccess: ({ data }) => {
-        console.log(data);
-      },
-    }
+    async () => await axios.get<jioSaavnTypes.jsTrendingI>("/trending/all")
   );
 
   return (

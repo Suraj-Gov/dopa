@@ -5,16 +5,14 @@ import axios from "axios";
 import { jsSongI } from "../../types/jioSaavn";
 import SongCard from "./Cards/SongCard";
 import { useDispatch, useSelector } from "react-redux";
-import { playbackStoreStateT } from "../store";
+import { storeStateT } from "../store";
 import { playbackActions } from "../slices/playbackSlice";
 
 interface props {}
 
 const Player: React.FC<props> = () => {
   const [playbackUrl, setPlaybackUrl] = useState("");
-  const playbackState = useSelector(
-    (state: playbackStoreStateT) => state.playback
-  );
+  const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
 
   const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
@@ -53,6 +51,7 @@ const Player: React.FC<props> = () => {
       borderRadius={"8"}
       position={"fixed"}
       bottom="4"
+      zIndex={"2000"}
       background="white"
       p="4"
     >

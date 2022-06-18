@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import {
   Box,
   ChakraProvider,
@@ -15,8 +16,13 @@ import Search from "../components/Search";
 import { isProd } from "../constants";
 import { Provider } from "react-redux";
 import "../styles/globals.css";
-import { playbackStore } from "../store";
+import { store } from "../store";
 import { useEffect } from "react";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,7 +64,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>Dopa</title>
       </Head>
       <QueryClientProvider client={queryClient}>
-        <Provider store={playbackStore}>
+        <Provider store={store}>
           <Container position={"relative"} maxW="2xl">
             <Search />
             <Component {...pageProps} />

@@ -3,6 +3,8 @@ import {
   Drawer,
   DrawerBody,
   DrawerContent,
+  Flex,
+  HStack,
   IconButton,
   Stack,
   Text,
@@ -10,10 +12,13 @@ import {
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import axios from "axios";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { BiLogInCircle } from "react-icons/bi";
 import { GrClose } from "react-icons/gr";
 import { useQuery } from "react-query";
 import { jsSearchResultsI } from "../../types/jioSaavn";
+import { supabase } from "../pages/_app";
+import AuthButton from "./AuthButton";
 import SongCard from "./Cards/SongCard";
 import CardsContainer from "./Containers/CardsContainer";
 import SongCardsContainer from "./Containers/SongCardsContainer";
@@ -26,6 +31,11 @@ const Search: React.FC<props> = () => {
   const [searchQuery, setSearchStr] = useState("");
   const [debouncedSearchStr] = useDebouncedValue(searchQuery, 500);
   const searchDrawerDisc = useDisclosure();
+
+  useEffect(() => {
+    const signedInUser = supabase.auth.user();
+    console.log(signedInUser);
+  }, []);
 
   const searchResults = useQuery(
     [debouncedSearchStr, "search"],
@@ -109,11 +119,15 @@ const Search: React.FC<props> = () => {
 
   return (
     <>
-      <SearchBar
-        onClick={searchDrawerDisc.onOpen}
-        value={searchQuery}
-        onChange={({ target: { value } }) => setSearchStr(value)}
-      />
+      <Flex alignItems={"center"}>
+        <SearchBar
+          flexGrow={1}
+          onClick={searchDrawerDisc.onOpen}
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchStr(value)}
+        />
+        <AuthButton ml="3" aria-label="Login" />
+      </Flex>
       <Drawer
         allowPinchZoom={false}
         returnFocusOnClose={false}

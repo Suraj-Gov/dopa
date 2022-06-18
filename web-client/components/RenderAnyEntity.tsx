@@ -11,7 +11,7 @@ import React, { useCallback, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { jsAnyI, jsPlaylistI } from "../../types/jioSaavn";
 import { playbackActions } from "../slices/playbackSlice";
-import { playbackStoreStateT } from "../store";
+import { storeStateT } from "../store";
 import Card from "./BaseCard";
 import SongCard from "./Cards/SongCard";
 import { BiAlbum } from "react-icons/bi";
@@ -31,9 +31,7 @@ interface props {
 }
 
 const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
-  const playbackState = useSelector(
-    (state: playbackStoreStateT) => state.playback
-  );
+  const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
 
   const playlistSongsQuery = useQuery(

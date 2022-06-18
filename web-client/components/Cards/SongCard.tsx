@@ -15,7 +15,7 @@ import { BsPauseFill, BsPlayFill } from "react-icons/bs";
 import Link from "next/link";
 import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { playbackStoreStateT } from "../../store/index";
+import { storeStateT } from "../../store/index";
 import { playbackActions } from "../../slices/playbackSlice";
 import EntityPlaybackButton from "../EntityPlaybackButton";
 

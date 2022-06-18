@@ -18,7 +18,7 @@ interface props extends InputProps {
 
 const SearchBar: React.FC<props> = ({ rightElement, isLoading, ...rest }) => {
   return (
-    <Center
+    <InputGroup
       background="whiteAlpha.800"
       my="4"
       sx={{ backdropFilter: "blur(2px) saturate(180%)" }}
@@ -27,14 +27,12 @@ const SearchBar: React.FC<props> = ({ rightElement, isLoading, ...rest }) => {
       top="4"
       position={"sticky"}
     >
-      <InputGroup>
-        <InputLeftElement>
-          {isLoading ? <Spinner w="4" h="4" /> : <AiOutlineSearch />}
-        </InputLeftElement>
-        <Input spellCheck={false} {...rest} />
-        {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
-      </InputGroup>
-    </Center>
+      <InputLeftElement>
+        {isLoading ? <Spinner w="4" h="4" /> : <AiOutlineSearch />}
+      </InputLeftElement>
+      <Input spellCheck={false} {...rest} />
+      {rightElement && <InputRightElement>{rightElement}</InputRightElement>}
+    </InputGroup>
   );
 };
 

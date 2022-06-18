@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { BsPauseFill, BsPlayFill, BsPlay } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { playbackActions } from "../slices/playbackSlice";
-import { playbackStoreStateT } from "../store";
+import { storeStateT } from "../store";
 
 interface props {
   queueItems?: string[] | (() => Promise<string[]>);
@@ -20,9 +20,7 @@ const EntityPlaybackButton: React.FC<props> = ({
   onClick,
   isSong,
 }) => {
-  const playbackState = useSelector(
-    (state: playbackStoreStateT) => state.playback
-  );
+  const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
 
   const { isPlaying, playSource } = playbackState;

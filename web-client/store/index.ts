@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "../slices/userSlice";
 import playbackReducer from "../slices/playbackSlice";
 
-export const playbackStore = configureStore({
+export const store = configureStore({
   reducer: {
     playback: playbackReducer,
+    user: userReducer,
   },
 });
 
-export type playbackStoreStateT = ReturnType<typeof playbackStore.getState>;
-export type playbackStoreDispatchT = typeof playbackStore.dispatch;
+export type storeStateT = ReturnType<typeof store.getState>;
+export type storeDispatchT = typeof store.dispatch;
