@@ -6,6 +6,7 @@ import {
   Flex,
   HStack,
   IconButton,
+  Spacer,
   Stack,
   Text,
   useDisclosure,
@@ -156,6 +157,7 @@ const Search: React.FC<props> = () => {
               />
               {renderSearchResults}
             </Container>
+            <Spacer h="8rem" />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

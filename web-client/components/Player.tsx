@@ -129,6 +129,12 @@ const Player: React.FC<props> = () => {
                     />
                   </Box>
                   <IconButton
+                    sx={{
+                      _focus: {
+                        outline: "none",
+                        boxShadow: "none",
+                      },
+                    }}
                     colorScheme={"blackAlpha"}
                     opacity={0.6}
                     background="none"

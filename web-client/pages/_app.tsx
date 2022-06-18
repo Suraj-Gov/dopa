@@ -4,6 +4,7 @@ import {
   ChakraProvider,
   Container,
   extendTheme,
+  Spacer,
   useToast,
 } from "@chakra-ui/react";
 import "@fontsource/overpass";
@@ -69,6 +70,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <Search />
             <Component {...pageProps} />
             <Player />
+            <Spacer h="8rem" />
           </Container>
         </Provider>
       </QueryClientProvider>

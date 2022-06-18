@@ -55,19 +55,6 @@ const ArtistPage = ({ data }: props) => {
   const songsDisc = useDisclosure();
   const albumsDisc = useDisclosure();
 
-  const getAlbumSongsQ = useMutation(
-    [data],
-    async (albumId: string) => await axios.get<jsAlbumI>(`/album/${albumId}`)
-  );
-
-  const getAlbumSongs = async (albumId: string) => {
-    const { mutateAsync } = getAlbumSongsQ;
-    const {
-      data: { songs },
-    } = await mutateAsync(albumId);
-    return songs?.map((i) => i.id) ?? [];
-  };
-
   return (
     <>
       <Box
@@ -123,7 +110,6 @@ const ArtistPage = ({ data }: props) => {
                 .map((a) => (
                   <AlbumCard
                     key={a.id}
-                    albumSongs={() => getAlbumSongs(a.id)}
                     id={a.id}
                     image={a.image}
                     title={a.title}
