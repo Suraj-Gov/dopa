@@ -60,7 +60,10 @@ const Player: React.FC<props> = () => {
 
   const playbackDetails = useQuery(
     ["playback", playbackState.current],
-    async () => await axios.get<jsSongI>(`/song/${playbackState.current}`),
+    async () => {
+      setPlaybackTimestamp(0);
+      return await axios.get<jsSongI>(`/song/${playbackState.current}`);
+    },
     {
       enabled: !!playbackState.current,
       onSuccess: (res) => {
@@ -124,6 +127,7 @@ const Player: React.FC<props> = () => {
       opacity={!isMobile || canViewControls ? 1 : 0}
       height={!isMobile || canViewControls ? "3rem" : "0"}
       pb={isMobile && canViewControls ? "4" : "0"}
+      px={isMobile ? "2" : "0"}
       overflow={"hidden"}
       color="white"
       alignItems={"center"}
@@ -164,29 +168,29 @@ const Player: React.FC<props> = () => {
     </Flex>
   );
 
-  return playbackDetails.isLoading ? (
-    <Spinner />
-  ) : (
-    <>
+  return (
+    <Flex
+      zIndex={"2000"}
+      position={"fixed"}
+      left="0"
+      right="0"
+      bottom="4"
+      mx="4"
+      justifyContent={"stretch"}
+    >
       <Flex
-        zIndex={"2000"}
-        position={"fixed"}
-        left="0"
-        right="0"
-        bottom="4"
-        mx="4"
-        justifyContent={"stretch"}
+        bgColor={"blackAlpha.700"}
+        borderRadius={"8"}
+        flexGrow={1}
+        flexDirection={"column"}
+        color="white"
+        sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
+        boxShadow={"lg"}
       >
-        <Flex
-          bgColor={"blackAlpha.700"}
-          borderRadius={"8"}
-          flexGrow={1}
-          flexDirection={"column"}
-          color="white"
-          sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
-          boxShadow={"lg"}
-        >
-          <Flex p="3">
+        <Flex p="3">
+          {playbackDetails.isLoading || playbackDetails.isFetching ? (
+            <Spinner />
+          ) : (
             <Flex flexGrow={1} alignItems={"center"}>
               <Image
                 src={playbackData?.image}
@@ -199,8 +203,8 @@ const Player: React.FC<props> = () => {
                 justifyContent={"space-between"}
                 alignItems="center"
               >
-                <Flex flexDir={"column"} justifyContent="center" m="2">
-                  <Text fontWeight={"bold"}>
+                <Flex flexDir={"column"} justifyContent="center" m="2" ml="4">
+                  <Text noOfLines={2} fontWeight={"bold"}>
                     {playbackData?.song ?? playbackData?.title ?? "-"}
                   </Text>
                   <Text maxW={"96"} noOfLines={1} fontSize="sm">
@@ -232,20 +236,20 @@ const Player: React.FC<props> = () => {
                 </Flex>
               </Flex>
             </Flex>
-          </Flex>
-          {isMobile && playerControls}
+          )}
         </Flex>
-        <audio
-          ref={audioRef}
-          onPlay={audioControls.onPlay}
-          onPause={audioControls.onPause}
-          onTimeUpdate={audioControls.onTimeUpdate}
-          onEnded={audioControls.goNext}
-          autoPlay
-          src={playbackUrl}
-        ></audio>
+        {isMobile && playerControls}
       </Flex>
-    </>
+      <audio
+        ref={audioRef}
+        onPlay={audioControls.onPlay}
+        onPause={audioControls.onPause}
+        onTimeUpdate={audioControls.onTimeUpdate}
+        onEnded={audioControls.goNext}
+        autoPlay
+        src={playbackUrl}
+      ></audio>
+    </Flex>
   );
 };
 

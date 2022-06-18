@@ -14,7 +14,7 @@ const ArtistsLinks: React.FC<ArtistsLinksProps> = ({ artists }) => {
   return (
     <>
       {artists?.map((a, idx) => (
-        <span key={a.id}>
+        <span key={`${a.id} ${idx}`}>
           <Link
             key={a.id}
             href={`/view/artist/${a.id}?token=${

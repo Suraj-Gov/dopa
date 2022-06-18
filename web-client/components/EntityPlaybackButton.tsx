@@ -82,6 +82,7 @@ const EntityPlaybackButton: React.FC<props> = ({
             border: "none",
             boxShadow: "none",
           },
+          touchAction: "manipulation",
         }}
         boxSize={boxSize}
         background="none"

@@ -7,7 +7,6 @@ import {
   Spacer,
   useToast,
 } from "@chakra-ui/react";
-import "@fontsource/overpass";
 import axios from "axios";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -33,15 +32,10 @@ const queryClient = new QueryClient({
   },
 });
 
-const theme = extendTheme({
-  fonts: {
-    heading: "Overpass",
-    body: "Overpass",
-  },
-});
-
 // TODO change after deployment
-axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
+axios.defaults.baseURL = isProd
+  ? ""
+  : "https://evidence-arctic-magazine-pages.trycloudflare.com/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const toast = useToast();
@@ -60,9 +54,10 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [toast]);
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider>
       <Head>
         <title>Dopa</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
       </Head>
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>

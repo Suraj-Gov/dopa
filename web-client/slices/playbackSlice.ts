@@ -29,13 +29,17 @@ export const playbackSlice = createSlice({
       >
     ) => {
       const newSongQueuePos =
-        action.payload?.atIdx ??
-        state.songQueuePos + (action.payload?.offset ?? 0);
-      state.songQueuePos = newSongQueuePos;
+        (action.payload?.atIdx ?? state.songQueuePos) +
+        (action.payload?.offset ?? 0);
+
       const item = state.playbackIdArr[newSongQueuePos];
-      // if the item is undefined, then stop playing
-      state.current = item ?? null;
-      state.isPlaying = true ?? false;
+      if (!item) {
+        state = initialPlaybackState;
+      } else {
+        state.songQueuePos = newSongQueuePos;
+        state.current = item ?? null;
+        state.isPlaying = Boolean(item);
+      }
     },
     enqueue: (state, action: PayloadAction<string>) => {
       state.playbackIdArr.splice(state.songQueuePos, 0, action.payload);

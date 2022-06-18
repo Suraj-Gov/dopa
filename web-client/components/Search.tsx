@@ -35,10 +35,8 @@ const Search: React.FC<props> = () => {
   const [debouncedSearchStr] = useDebouncedValue(searchQuery, 500);
   const searchDrawerDisc = useDisclosure();
 
-  useEffect(() => {
-    const signedInUser = supabase.auth.user();
-    console.log(signedInUser);
-  }, []);
+  const router = useRouter();
+  router.events?.on("routeChangeComplete", searchDrawerDisc.onClose);
 
   const searchResults = useQuery(
     [debouncedSearchStr, "search"],
@@ -57,20 +55,29 @@ const Search: React.FC<props> = () => {
         searchResults.data.data;
 
       const topQuerySection = topquery?.data?.length && (
-        <CardsContainer>
+        <Flex justifyContent={"center"} boxShadow={"xl"} p="3">
           {topquery.data.map((entity) => (
             <RenderAnyEntity key={entity.id} entity={entity} />
           ))}
-        </CardsContainer>
+        </Flex>
       );
+
+      const songsSectionArtists = songs?.data
+        .map((s) => s.more_info?.primary_artists as string)
+        .map((artists) =>
+          artists.split(", ").map((a) => ({
+            id: a,
+            name: a,
+          }))
+        );
 
       const songsSection = songs?.data?.length && (
         <SongCardsContainer>
-          {songs.data.map((s) => (
+          {songs.data.map((s, idx) => (
             <SongCard
               key={s.id}
               album={{ id: s.albumid, title: s.album }}
-              artists={s.more_info?.artistMap?.artists ?? []}
+              artists={songsSectionArtists[idx] ?? []}
               imageUrl={s.image}
               playbackId={s.id}
               title={s.title}

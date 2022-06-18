@@ -91,7 +91,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
         return (
           <ArtistCard
             imageUrl={entity.image}
-            name={entity.name}
+            name={entity.title}
             url={artistUrl}
           />
         );
