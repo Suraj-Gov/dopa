@@ -241,6 +241,7 @@ const Player: React.FC<props> = () => {
         {isMobile && playerControls}
       </Flex>
       <audio
+        onLoad={() => dispatch(playbackActions.audioLoaded())}
         ref={audioRef}
         onPlay={audioControls.onPlay}
         onPause={audioControls.onPause}

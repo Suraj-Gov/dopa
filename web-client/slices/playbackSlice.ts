@@ -18,6 +18,9 @@ export const playbackSlice = createSlice({
   name: "playback",
   initialState: initialPlaybackState,
   reducers: {
+    audioLoaded: (state) => {
+      state.isPlaying = true;
+    },
     play: (
       state,
       action: PayloadAction<
@@ -38,8 +41,9 @@ export const playbackSlice = createSlice({
       } else {
         state.songQueuePos = newSongQueuePos;
         state.current = item ?? null;
-        state.isPlaying = Boolean(item);
       }
+      // should always be false, set it after media loads
+      state.isPlaying = false;
     },
     enqueue: (state, action: PayloadAction<string>) => {
       state.playbackIdArr.splice(state.songQueuePos, 0, action.payload);
