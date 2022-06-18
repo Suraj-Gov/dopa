@@ -27,6 +27,7 @@ import { GrMore } from "react-icons/gr";
 import { AiOutlineMore } from "react-icons/ai";
 import { formatSeconds } from "../helpers";
 import { MdSkipPrevious, MdSkipNext } from "react-icons/md";
+import RTCContext from "./Context/RTCContext";
 
 interface props {}
 
@@ -48,10 +49,13 @@ const controlButtonProps = {
   background: "none",
 };
 
+// send playbackId, playbackTimestamp, isPlaying
+
 const Player: React.FC<props> = () => {
   const [playbackUrl, setPlaybackUrl] = useState("");
   const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
   const [canViewControls, setCanViewControls] = useState(false);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
 
   const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
@@ -74,10 +78,20 @@ const Player: React.FC<props> = () => {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  // TODO
+  const playbackStreamData = JSON.stringify({
+    id: playbackState.current,
+    tz: playbackTimestamp,
+    isPlaying: playbackState.isPlaying,
+  });
+
   /** setting up listeners */
   useEffect(() => {
     if (audioRef.current) {
+      audioRef.current.onloadstart = () => setIsAudioLoaded(false);
+      audioRef.current.onloadeddata = () => setIsAudioLoaded(true);
       if (playbackState.isPlaying) {
+        setIsAudioLoaded(true);
         audioRef.current.play();
       } else {
         audioRef.current.pause();
@@ -189,15 +203,21 @@ const Player: React.FC<props> = () => {
       >
         <Flex p="3">
           {playbackDetails.isLoading || playbackDetails.isFetching ? (
-            <Spinner />
+            <Box p="3">
+              <Spinner />
+            </Box>
           ) : (
             <Flex flexGrow={1} alignItems={"center"}>
-              <Image
-                src={playbackData?.image}
-                alt={playbackData?.title}
-                boxSize="12"
-                borderRadius={"8"}
-              />
+              {isAudioLoaded ? (
+                <Image
+                  src={playbackData?.image}
+                  alt={playbackData?.title}
+                  boxSize="12"
+                  borderRadius={"8"}
+                />
+              ) : (
+                <Spinner size="lg" />
+              )}
               <Flex
                 flexGrow={1}
                 justifyContent={"space-between"}
@@ -227,12 +247,14 @@ const Player: React.FC<props> = () => {
                       size={"2rem"}
                     />
                   </Box>
-                  <IconButton
-                    onClick={() => setCanViewControls((x) => !x)}
-                    {...controlButtonProps}
-                    aria-label="View more"
-                    icon={<AiOutlineMore size={"2rem"} />}
-                  />
+                  {isMobile && (
+                    <IconButton
+                      onClick={() => setCanViewControls((x) => !x)}
+                      {...controlButtonProps}
+                      aria-label="View more"
+                      icon={<AiOutlineMore size={"2rem"} />}
+                    />
+                  )}
                 </Flex>
               </Flex>
             </Flex>

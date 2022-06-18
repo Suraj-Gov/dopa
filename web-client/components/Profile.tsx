@@ -7,7 +7,7 @@ import { userActions } from "../slices/userSlice";
 import { storeStateT } from "../store";
 import { googleIdentityData } from "../types";
 
-const AuthButton = (props: IconButtonProps) => {
+const Profile = (props: IconButtonProps) => {
   const userState = useSelector((state: storeStateT) => state.user);
   const dispatch = useDispatch();
 
@@ -67,4 +67,4 @@ const AuthButton = (props: IconButtonProps) => {
   );
 };
 
-export default AuthButton;
+export default Profile;

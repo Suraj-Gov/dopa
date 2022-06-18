@@ -31,6 +31,7 @@ export const playbackSlice = createSlice({
         | undefined
       >
     ) => {
+      state.isPlaying = false;
       const newSongQueuePos =
         (action.payload?.atIdx ?? state.songQueuePos) +
         (action.payload?.offset ?? 0);
@@ -42,8 +43,6 @@ export const playbackSlice = createSlice({
         state.songQueuePos = newSongQueuePos;
         state.current = item ?? null;
       }
-      // should always be false, set it after media loads
-      state.isPlaying = false;
     },
     enqueue: (state, action: PayloadAction<string>) => {
       state.playbackIdArr.splice(state.songQueuePos, 0, action.payload);

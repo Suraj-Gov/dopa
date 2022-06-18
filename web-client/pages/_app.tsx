@@ -15,10 +15,11 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import Player from "../components/Player";
 import Search from "../components/Search";
 import { isProd } from "../constants";
-import { Provider } from "react-redux";
+import { Provider as ReduxProvider } from "react-redux";
 import "../styles/globals.css";
 import { store } from "../store";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import RTCContext, { serverConfig } from "../components/Context/RTCContext";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -47,8 +48,10 @@ axios.defaults.baseURL = isProd
 
 function MyApp({ Component, pageProps }: AppProps) {
   const toast = useToast();
+  const [pConn, setPConn] = useState<RTCPeerConnection | null>(null);
 
   useEffect(() => {
+    setPConn(new RTCPeerConnection(serverConfig));
     axios.interceptors.response.use((res) => {
       if (res.status >= 400) {
         toast({
@@ -68,15 +71,23 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="width=device-width, user-scalable=no" />
       </Head>
       <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <Container position={"relative"} maxW="2xl">
-            <Search />
-            <Spacer h="2rem" />
-            <Component {...pageProps} />
-            <Player />
-            <Spacer h="8rem" />
-          </Container>
-        </Provider>
+        <ReduxProvider store={store}>
+          <RTCContext.Provider
+            value={{
+              pConn: pConn,
+              localStream: null as null | MediaStreamTrack,
+              remoteStream: null as null | MediaStreamTrack,
+            }}
+          >
+            <Container position={"relative"} maxW="2xl">
+              <Search />
+              <Spacer h="2rem" />
+              <Component {...pageProps} />
+              <Player />
+              <Spacer h="8rem" />
+            </Container>
+          </RTCContext.Provider>
+        </ReduxProvider>
       </QueryClientProvider>
     </ChakraProvider>
   );

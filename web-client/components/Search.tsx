@@ -21,7 +21,7 @@ import { GrClose } from "react-icons/gr";
 import { useQuery } from "react-query";
 import { jsSearchResultsI } from "../../types/jioSaavn";
 import { supabase } from "../pages/_app";
-import AuthButton from "./AuthButton";
+import Profile from "./Profile";
 import SongCard from "./Cards/SongCard";
 import CardsContainer from "./Containers/CardsContainer";
 import SongCardsContainer from "./Containers/SongCardsContainer";
@@ -144,7 +144,7 @@ const Search: React.FC<props> = () => {
           value={searchQuery}
           onChange={({ target: { value } }) => setSearchStr(value)}
         />
-        <AuthButton ml="3" aria-label="Login" />
+        <Profile ml="3" aria-label="Login" />
       </Flex>
       <Drawer
         allowPinchZoom={false}
