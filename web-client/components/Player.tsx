@@ -1,6 +1,7 @@
 import {
   Box,
   Flex,
+  HStack,
   IconButton,
   Image,
   Slider,
@@ -24,11 +25,33 @@ import ArtistsLinks from "./Elements/ArtistsLinks";
 import EntityPlaybackButton from "./EntityPlaybackButton";
 import { GrMore } from "react-icons/gr";
 import { AiOutlineMore } from "react-icons/ai";
+import { formatSeconds } from "../helpers";
+import { MdSkipPrevious, MdSkipNext } from "react-icons/md";
 
 interface props {}
 
+const controlButtonProps = {
+  sx: {
+    _focus: {
+      outline: "none",
+      boxShadow: "none",
+    },
+    _active: {
+      opacity: 1,
+    },
+    _hover: {
+      opacity: 0.8,
+    },
+  },
+  colorScheme: "blackAlpha",
+  opacity: 0.6,
+  background: "none",
+};
+
 const Player: React.FC<props> = () => {
   const [playbackUrl, setPlaybackUrl] = useState("");
+  const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
+  const [canViewControls, setCanViewControls] = useState(false);
 
   const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
@@ -51,19 +74,33 @@ const Player: React.FC<props> = () => {
   /** setting up listeners */
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.onplay = () => dispatch(playbackActions.toggle(true));
-      audioRef.current.onpause = () => dispatch(playbackActions.toggle(false));
       if (playbackState.isPlaying) {
         audioRef.current.play();
       } else {
         audioRef.current.pause();
       }
     }
-  }, [dispatch, playbackState.isPlaying]);
+  }, [audioRef, dispatch, playbackState.isPlaying]);
 
   if (!playbackState.current) {
     return null;
   }
+
+  const onPlaybackTimestampChange = (tz: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = tz;
+      setPlaybackTimestamp(tz);
+    }
+  };
+
+  const audioControls = {
+    onPlay: () => dispatch(playbackActions.toggle(true)),
+    onPause: () => dispatch(playbackActions.toggle(false)),
+    onTimeUpdate: () =>
+      setPlaybackTimestamp(audioRef.current?.currentTime ?? 0),
+    goNext: () => dispatch(playbackActions.play({ offset: 1 })),
+    goPrevious: () => dispatch(playbackActions.play({ offset: -1 })),
+  };
 
   const playbackData = playbackDetails.data?.data;
 
@@ -77,6 +114,54 @@ const Player: React.FC<props> = () => {
       return fin;
     },
     [] as any[]
+  );
+
+  const playerControls = (
+    <Flex
+      flexGrow={1}
+      maxW="96"
+      transition="all 0.3s ease"
+      opacity={!isMobile || canViewControls ? 1 : 0}
+      height={!isMobile || canViewControls ? "3rem" : "0"}
+      pb={isMobile && canViewControls ? "4" : "0"}
+      overflow={"hidden"}
+      color="white"
+      alignItems={"center"}
+      justifyContent="space-between"
+    >
+      <IconButton
+        {...controlButtonProps}
+        aria-label="Play previous song"
+        onClick={audioControls.goPrevious}
+        icon={<MdSkipPrevious size="2rem" />}
+      />
+      <Text fontSize={"sm"} w="10">
+        {formatSeconds(playbackTimestamp)}
+      </Text>
+      <Slider
+        colorScheme={"red"}
+        maxW="40"
+        minW={"28"}
+        value={playbackTimestamp}
+        max={audioRef.current?.duration ?? 0}
+        onChange={onPlaybackTimestampChange}
+        aria-label="Playback Control"
+      >
+        <SliderTrack>
+          <SliderFilledTrack />
+        </SliderTrack>
+        <SliderThumb />
+      </Slider>
+      <Text fontSize={"sm"} w="10" textAlign={"right"}>
+        {formatSeconds(audioRef.current?.duration ?? 0)}
+      </Text>
+      <IconButton
+        {...controlButtonProps}
+        aria-label="Play next song"
+        onClick={audioControls.goNext}
+        icon={<MdSkipNext size={"2rem"} />}
+      />
+    </Flex>
   );
 
   return playbackDetails.isLoading ? (
@@ -93,72 +178,73 @@ const Player: React.FC<props> = () => {
         justifyContent={"stretch"}
       >
         <Flex
-          flexGrow={1}
-          p="3"
           bgColor={"blackAlpha.700"}
+          borderRadius={"8"}
+          flexGrow={1}
+          flexDirection={"column"}
           color="white"
           sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
           boxShadow={"lg"}
-          borderRadius={"8"}
         >
-          <Flex flexGrow={1} alignItems={"center"}>
-            <Image
-              src={playbackData?.image}
-              alt={playbackData?.title}
-              boxSize="12"
-              borderRadius={"8"}
-            />
-            <Flex flexGrow={1} justifyContent={"space-between"}>
-              <Flex flexDir={"column"} justifyContent="center" m="2">
-                <Text fontWeight={"bold"}>
-                  {playbackData?.song ?? playbackData?.title ?? "-"}
-                </Text>
-                <Text maxW={"96"} noOfLines={1} fontSize="sm">
-                  <Link href={`/view/album/${playbackData?.albumid}`}>
-                    <a>{playbackData?.album}</a>
-                  </Link>
-                </Text>
-                {!isMobile && (
-                  <Text maxW={"96"} noOfLines={1} fontSize={"xs"}>
-                    <ArtistsLinks artists={artists} />
+          <Flex p="3">
+            <Flex flexGrow={1} alignItems={"center"}>
+              <Image
+                src={playbackData?.image}
+                alt={playbackData?.title}
+                boxSize="12"
+                borderRadius={"8"}
+              />
+              <Flex
+                flexGrow={1}
+                justifyContent={"space-between"}
+                alignItems="center"
+              >
+                <Flex flexDir={"column"} justifyContent="center" m="2">
+                  <Text fontWeight={"bold"}>
+                    {playbackData?.song ?? playbackData?.title ?? "-"}
                   </Text>
-                )}
-              </Flex>
-              <Flex alignItems={"center"}>
-                <Box w="8" position="relative">
-                  <EntityPlaybackButton
-                    sourceId={playbackState.playSource ?? ""}
-                    isSong
-                    size={"2rem"}
+                  <Text maxW={"96"} noOfLines={1} fontSize="sm">
+                    <Link href={`/view/album/${playbackData?.albumid}`}>
+                      <a>{playbackData?.album}</a>
+                    </Link>
+                  </Text>
+                  {!isMobile && (
+                    <Text maxW={"96"} noOfLines={1} fontSize={"xs"}>
+                      <ArtistsLinks artists={artists} />
+                    </Text>
+                  )}
+                </Flex>
+                {!isMobile && playerControls}
+                <Flex alignItems={"center"}>
+                  <Box w="8" position="relative">
+                    <EntityPlaybackButton
+                      sourceId={playbackState.playSource ?? ""}
+                      isSong
+                      size={"2rem"}
+                    />
+                  </Box>
+                  <IconButton
+                    onClick={() => setCanViewControls((x) => !x)}
+                    {...controlButtonProps}
+                    aria-label="View more"
+                    icon={<AiOutlineMore size={"2rem"} />}
                   />
-                </Box>
-                <IconButton
-                  sx={{
-                    _focus: {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                  colorScheme={"blackAlpha"}
-                  opacity={0.6}
-                  background="none"
-                  aria-label="View more"
-                  icon={<AiOutlineMore size={"2rem"} />}
-                />
+                </Flex>
               </Flex>
             </Flex>
           </Flex>
-          {/* <Flex>
-              <Slider aria-label="Playback Control">
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-            </Flex> */}
+          {isMobile && playerControls}
         </Flex>
+        <audio
+          ref={audioRef}
+          onPlay={audioControls.onPlay}
+          onPause={audioControls.onPause}
+          onTimeUpdate={audioControls.onTimeUpdate}
+          onEnded={audioControls.goNext}
+          autoPlay
+          src={playbackUrl}
+        ></audio>
       </Flex>
-      <audio ref={audioRef} autoPlay src={playbackUrl}></audio>
     </>
   );
 };

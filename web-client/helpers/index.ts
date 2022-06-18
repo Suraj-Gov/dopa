@@ -19,3 +19,12 @@ export const toNameCase = (str?: string) => {
   if (!str) return "";
   return str[0].toUpperCase() + str.substring(1);
 };
+
+export const formatSeconds = (duration: number) => {
+  if (isNaN(duration)) {
+    duration = 0;
+  }
+  const minutes = Math.floor(duration / 60);
+  const seconds = (duration % 60).toFixed(0).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+};

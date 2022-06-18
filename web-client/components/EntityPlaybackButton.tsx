@@ -47,7 +47,7 @@ const EntityPlaybackButton: React.FC<props> = ({
             sourceId,
           })
         );
-        dispatch(playbackActions.unqueue());
+        dispatch(playbackActions.play());
       } else if (onClick) {
         onClick();
       }
@@ -61,7 +61,7 @@ const EntityPlaybackButton: React.FC<props> = ({
       <BsPlayFill size={size} />
     )
   ) : isLoading ? (
-    <Spinner />
+    <Spinner size="lg" thickness="4px" />
   ) : (
     <BsPlay size={size} />
   );

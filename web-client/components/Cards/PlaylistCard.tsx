@@ -34,7 +34,7 @@ const PlaylistCard: React.FC<props> = ({ imageUrl, id, title }) => {
     const res = await playlistSongsQuery.refetch();
     const songs = res.data?.data.songs.map((i) => i.id) ?? [];
     dispatch(playbackActions.setQueue({ sourceId: id, songs }));
-    dispatch(playbackActions.unqueue());
+    dispatch(playbackActions.play());
   }, [dispatch, id, playlistSongsQuery]);
 
   return (

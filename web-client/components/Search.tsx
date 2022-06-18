@@ -117,7 +117,7 @@ const Search: React.FC<props> = () => {
       );
     }
     return (
-      <Text mt="4" textAlign={"center"}>
+      <Text mt="8" textAlign={"center"}>
         Search for music, artists, albums and more!
       </Text>
     );

@@ -5,6 +5,7 @@ const initialPlaybackState = {
   playbackIdArr: [] as string[],
   isPlaying: false,
   playSource: null as string | null,
+  songQueuePos: 0,
 };
 
 export const playbackActionTypes = {
@@ -17,14 +18,27 @@ export const playbackSlice = createSlice({
   name: "playback",
   initialState: initialPlaybackState,
   reducers: {
-    unqueue: (state) => {
-      const [firstItem, ...rest] = state.playbackIdArr;
-      state.current = firstItem;
-      state.isPlaying = true;
-      state.playbackIdArr = rest ?? [];
+    play: (
+      state,
+      action: PayloadAction<
+        | {
+            offset: number;
+            atIdx?: number;
+          }
+        | undefined
+      >
+    ) => {
+      const newSongQueuePos =
+        action.payload?.atIdx ??
+        state.songQueuePos + (action.payload?.offset ?? 0);
+      state.songQueuePos = newSongQueuePos;
+      const item = state.playbackIdArr[newSongQueuePos];
+      // if the item is undefined, then stop playing
+      state.current = item ?? null;
+      state.isPlaying = true ?? false;
     },
     enqueue: (state, action: PayloadAction<string>) => {
-      state.playbackIdArr.push(action.payload);
+      state.playbackIdArr.splice(state.songQueuePos, 0, action.payload);
     },
     setQueue: (
       state,
