@@ -38,15 +38,17 @@ const AlbumsPage: React.FC<props> = ({ data }) => {
   return (
     <Box my="6">
       <Flex>
-        <BaseCard
-          imageUrl={data.image}
-          overlayChildren={
-            <EntityPlaybackButton
-              sourceId={data.id}
-              queueItems={data.songs?.map((i) => i.id)}
-            />
-          }
-        />
+        <Box>
+          <BaseCard
+            imageUrl={data.image}
+            overlayChildren={
+              <EntityPlaybackButton
+                sourceId={data.id}
+                queueItems={data.songs?.map((i) => i.id)}
+              />
+            }
+          />
+        </Box>
         <Flex ml="4" flexDir={"column"} justifyContent="flex-end">
           <Heading noOfLines={2} fontSize={"xl"} as="h1">
             {data.title}

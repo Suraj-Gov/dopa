@@ -1,4 +1,16 @@
-import { Box, Flex, Spinner, Text, useMediaQuery } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Image,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+  Spinner,
+  Text,
+  useMediaQuery,
+} from "@chakra-ui/react";
 import { useQuery } from "react-query";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -7,6 +19,11 @@ import SongCard from "./Cards/SongCard";
 import { useDispatch, useSelector } from "react-redux";
 import { storeStateT } from "../store";
 import { playbackActions } from "../slices/playbackSlice";
+import Link from "next/link";
+import ArtistsLinks from "./Elements/ArtistsLinks";
+import EntityPlaybackButton from "./EntityPlaybackButton";
+import { GrMore } from "react-icons/gr";
+import { AiOutlineMore } from "react-icons/ai";
 
 interface props {}
 
@@ -30,6 +47,7 @@ const Player: React.FC<props> = () => {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  /** setting up listeners */
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.onplay = () => dispatch(playbackActions.toggle(true));
@@ -46,40 +64,93 @@ const Player: React.FC<props> = () => {
     return null;
   }
 
+  const playbackData = playbackDetails.data?.data;
+  console.log(playbackData);
+
+  const artists = Object.entries(playbackData?.artistMap ?? {}).reduce(
+    (fin, [name, id]) => {
+      fin ??= [];
+      fin.push({
+        name,
+        id,
+      });
+      return fin;
+    },
+    [] as any[]
+  );
+
   return (
-    <Box
-      borderRadius={"8"}
-      position={"fixed"}
-      bottom="4"
-      zIndex={"2000"}
-      background="white"
-      p="4"
-    >
+    <Flex justifyContent={"center"}>
       {playbackDetails.isLoading ? (
         <Spinner />
       ) : (
         <>
-          <Flex flexDir={isMobile ? "column" : "row"} alignItems={"center"}>
-            <SongCard
-              mr="4"
-              album={{
-                id: playbackDetails.data?.data.albumid ?? "-",
-                title: playbackDetails.data?.data?.album ?? "-",
-              }}
-              artists={playbackDetails.data?.data.artistMap?.artists ?? []}
-              imageUrl={playbackDetails.data?.data.image!}
-              playbackId={playbackState.current}
-              title={
-                playbackDetails.data?.data.song ??
-                playbackDetails.data?.data.title ??
-                "-"
-              }
-            />
-            <audio ref={audioRef} autoPlay src={playbackUrl} controls></audio>
-          </Flex>
+          <Box
+            bgColor={"blackAlpha.700"}
+            color="white"
+            sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
+            boxShadow={"lg"}
+            borderRadius={"8"}
+            position={"fixed"}
+            bottom="4"
+            left="0"
+            right="0"
+            zIndex={"2000"}
+            mx="4"
+            p="3"
+          >
+            <Flex alignItems={"center"}>
+              <Image
+                src={playbackData?.image}
+                alt={playbackData?.title}
+                boxSize="12"
+                borderRadius={"8"}
+              />
+              <Flex flexGrow={1} justifyContent={"space-between"}>
+                <Flex flexDir={"column"} justifyContent="center" m="2">
+                  <Text fontWeight={"bold"}>
+                    {playbackData?.song ?? playbackData?.title ?? "-"}
+                  </Text>
+                  <Text noOfLines={1} fontSize="sm">
+                    <Link href={`/view/album/${playbackData?.albumid}`}>
+                      <a>{playbackData?.album}</a>
+                    </Link>
+                  </Text>
+                  {/* <Text noOfLines={1} fontSize={"xs"}>
+                  <ArtistsLinks artists={artists} />
+                </Text> */}
+                </Flex>
+                <Flex alignItems={"center"}>
+                  <Box w="8" position="relative">
+                    <EntityPlaybackButton
+                      sourceId={playbackState.playSource ?? ""}
+                      isSong
+                      size={"2rem"}
+                    />
+                  </Box>
+                  <IconButton
+                    colorScheme={"blackAlpha"}
+                    opacity={0.6}
+                    background="none"
+                    aria-label="View more"
+                    icon={<AiOutlineMore size={"2rem"} />}
+                  />
+                </Flex>
+              </Flex>
+            </Flex>
+            {/* <Flex>
+              <Slider aria-label="Playback Control">
+                <SliderTrack>
+                  <SliderFilledTrack />
+                </SliderTrack>
+                <SliderThumb />
+              </Slider>
+            </Flex> */}
+          </Box>
+          <audio ref={audioRef} autoPlay src={playbackUrl}></audio>
         </>
       )}
-    </Box>
+    </Flex>
   );
 };
 

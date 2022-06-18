@@ -24,6 +24,7 @@ import axios from "axios";
 import { entityTypeIconProps } from "../constants";
 import ArtistCard from "./Cards/ArtistCard";
 import AlbumCard from "./Cards/AlbumCard";
+import PlaylistCard from "./Cards/PlaylistCard";
 
 interface props {
   entity: jsAnyI;
@@ -31,24 +32,6 @@ interface props {
 }
 
 const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
-  const playbackState = useSelector((state: storeStateT) => state.playback);
-  const dispatch = useDispatch();
-
-  const playlistSongsQuery = useQuery(
-    [entity.type, entity.id],
-    async () => await axios.get<jsPlaylistI>(`/playlist/${entity.id}`),
-    {
-      enabled: false,
-    }
-  );
-
-  const playSongsInPlaylist = useCallback(async () => {
-    const res = await playlistSongsQuery.refetch();
-    const songs = res.data?.data.songs.map((i) => i.id) ?? [];
-    dispatch(playbackActions.setQueue({ sourceId: entity.id, songs }));
-    dispatch(playbackActions.unqueue());
-  }, [dispatch, entity.id, playlistSongsQuery]);
-
   const render = useMemo(() => {
     switch (entity?.type) {
       case "song":
@@ -115,28 +98,11 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
       }
       case "playlist": {
         return (
-          <Card
+          <PlaylistCard
+            id={entity.id}
             imageUrl={entity.image}
-            overlayChildren={
-              <>
-                <Icon {...entityTypeIconProps} as={RiPlayListLine} />
-                <EntityPlaybackButton
-                  size="3rem"
-                  sourceId={entity.id}
-                  onClick={playSongsInPlaylist}
-                />
-              </>
-            }
             title={entity.title}
-          >
-            <Link href={`/view/playlist/${entity.id}`}>
-              <a>
-                <Text noOfLines={2} fontWeight={700}>
-                  {entity.title}
-                </Text>
-              </a>
-            </Link>
-          </Card>
+          />
         );
       }
     }
@@ -144,7 +110,7 @@ const RenderAnyEntity: React.FC<props> = ({ entity, asCard }) => {
     console.log("got nothing");
 
     return null;
-  }, [entity, asCard, playSongsInPlaylist]);
+  }, [entity, asCard]);
 
   return render;
 };
