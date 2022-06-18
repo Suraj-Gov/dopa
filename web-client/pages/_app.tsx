@@ -68,6 +68,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Provider store={store}>
           <Container position={"relative"} maxW="2xl">
             <Search />
+            <Spacer h="2rem" />
             <Component {...pageProps} />
             <Player />
             <Spacer h="8rem" />

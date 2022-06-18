@@ -1,4 +1,5 @@
 import {
+  Box,
   Container,
   Drawer,
   DrawerBody,
@@ -13,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import axios from "axios";
+import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { BiLogInCircle } from "react-icons/bi";
 import { GrClose } from "react-icons/gr";
@@ -102,17 +104,20 @@ const Search: React.FC<props> = () => {
       );
 
       return (
-        <Stack position={"relative"} spacing="6">
-          {topQuerySection}
-          {songsSection}
-          {artistsSection}
-          {playlistsSection}
-          {albumsSection}
-        </Stack>
+        <>
+          <Spacer h="2rem" />
+          <Stack position={"relative"} spacing="6">
+            {topQuerySection}
+            {songsSection}
+            {artistsSection}
+            {playlistsSection}
+            {albumsSection}
+          </Stack>
+        </>
       );
     }
     return (
-      <Text textAlign={"center"}>
+      <Text mt="4" textAlign={"center"}>
         Search for music, artists, albums and more!
       </Text>
     );
@@ -120,7 +125,12 @@ const Search: React.FC<props> = () => {
 
   return (
     <>
-      <Flex alignItems={"center"}>
+      <Flex
+        zIndex={"overlay"}
+        top="4"
+        position={"sticky"}
+        alignItems={"center"}
+      >
         <SearchBar
           flexGrow={1}
           onClick={searchDrawerDisc.onOpen}
@@ -140,21 +150,22 @@ const Search: React.FC<props> = () => {
         <DrawerContent bgColor={"gray.100"} borderRadius="6">
           <DrawerBody px="4" pb="12">
             <Container position="relative" p="0" size="md">
-              <SearchBar
-                isLoading={searchResults.isLoading}
-                rightElement={
-                  <IconButton
-                    border="none"
-                    background="none"
-                    aria-label="Close"
-                    icon={<GrClose />}
-                    onClick={searchDrawerDisc.onClose}
-                  />
-                }
-                onClick={searchDrawerDisc.onOpen}
-                value={searchQuery}
-                onChange={({ target: { value } }) => setSearchStr(value)}
-              />
+              <Box zIndex={"overlay"} top="4" position={"sticky"}>
+                <SearchBar
+                  isLoading={searchResults.isLoading}
+                  rightElement={
+                    <IconButton
+                      border="none"
+                      background="none"
+                      aria-label="Close"
+                      icon={<GrClose />}
+                      onClick={searchDrawerDisc.onClose}
+                    />
+                  }
+                  value={searchQuery}
+                  onChange={({ target: { value } }) => setSearchStr(value)}
+                />
+              </Box>
               {renderSearchResults}
             </Container>
             <Spacer h="8rem" />

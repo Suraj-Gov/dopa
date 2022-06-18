@@ -20,12 +20,8 @@ const SearchBar: React.FC<props> = ({ rightElement, isLoading, ...rest }) => {
   return (
     <InputGroup
       background="whiteAlpha.800"
-      my="4"
       sx={{ backdropFilter: "blur(2px) saturate(180%)" }}
       dropShadow="2xl"
-      zIndex={"overlay"}
-      top="4"
-      position={"sticky"}
     >
       <InputLeftElement>
         {isLoading ? <Spinner w="4" h="4" /> : <AiOutlineSearch />}

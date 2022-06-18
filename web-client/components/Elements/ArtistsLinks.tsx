@@ -14,7 +14,7 @@ const ArtistsLinks: React.FC<ArtistsLinksProps> = ({ artists }) => {
   return (
     <>
       {artists?.map((a, idx) => (
-        <>
+        <span key={a.id}>
           <Link
             key={a.id}
             href={`/view/artist/${a.id}?token=${
@@ -26,7 +26,7 @@ const ArtistsLinks: React.FC<ArtistsLinksProps> = ({ artists }) => {
           {idx + 1 !== artists.length && (
             <chakra.span mx="1">&bull;</chakra.span>
           )}
-        </>
+        </span>
       ))}
     </>
   );

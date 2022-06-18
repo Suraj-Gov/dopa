@@ -29,6 +29,7 @@ interface props {}
 
 const Player: React.FC<props> = () => {
   const [playbackUrl, setPlaybackUrl] = useState("");
+
   const playbackState = useSelector((state: storeStateT) => state.playback);
   const dispatch = useDispatch();
 
@@ -65,86 +66,89 @@ const Player: React.FC<props> = () => {
   }
 
   const playbackData = playbackDetails.data?.data;
-  console.log(playbackData);
 
   const artists = Object.entries(playbackData?.artistMap ?? {}).reduce(
     (fin, [name, id]) => {
       fin ??= [];
       fin.push({
         name,
-        id,
+        id: name,
       });
       return fin;
     },
     [] as any[]
   );
 
-  return (
-    <Flex justifyContent={"center"}>
-      {playbackDetails.isLoading ? (
-        <Spinner />
-      ) : (
-        <>
-          <Box
-            bgColor={"blackAlpha.700"}
-            color="white"
-            sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
-            boxShadow={"lg"}
-            borderRadius={"8"}
-            position={"fixed"}
-            bottom="4"
-            left="0"
-            right="0"
-            zIndex={"2000"}
-            mx="4"
-            p="3"
-          >
-            <Flex alignItems={"center"}>
-              <Image
-                src={playbackData?.image}
-                alt={playbackData?.title}
-                boxSize="12"
-                borderRadius={"8"}
-              />
-              <Flex flexGrow={1} justifyContent={"space-between"}>
-                <Flex flexDir={"column"} justifyContent="center" m="2">
-                  <Text fontWeight={"bold"}>
-                    {playbackData?.song ?? playbackData?.title ?? "-"}
+  return playbackDetails.isLoading ? (
+    <Spinner />
+  ) : (
+    <>
+      <Flex
+        zIndex={"2000"}
+        position={"fixed"}
+        left="0"
+        right="0"
+        bottom="4"
+        mx="4"
+        justifyContent={"stretch"}
+      >
+        <Flex
+          flexGrow={1}
+          p="3"
+          bgColor={"blackAlpha.700"}
+          color="white"
+          sx={{ backdropFilter: "blur(4px) saturate(180%)" }}
+          boxShadow={"lg"}
+          borderRadius={"8"}
+        >
+          <Flex flexGrow={1} alignItems={"center"}>
+            <Image
+              src={playbackData?.image}
+              alt={playbackData?.title}
+              boxSize="12"
+              borderRadius={"8"}
+            />
+            <Flex flexGrow={1} justifyContent={"space-between"}>
+              <Flex flexDir={"column"} justifyContent="center" m="2">
+                <Text fontWeight={"bold"}>
+                  {playbackData?.song ?? playbackData?.title ?? "-"}
+                </Text>
+                <Text maxW={"96"} noOfLines={1} fontSize="sm">
+                  <Link href={`/view/album/${playbackData?.albumid}`}>
+                    <a>{playbackData?.album}</a>
+                  </Link>
+                </Text>
+                {!isMobile && (
+                  <Text maxW={"96"} noOfLines={1} fontSize={"xs"}>
+                    <ArtistsLinks artists={artists} />
                   </Text>
-                  <Text noOfLines={1} fontSize="sm">
-                    <Link href={`/view/album/${playbackData?.albumid}`}>
-                      <a>{playbackData?.album}</a>
-                    </Link>
-                  </Text>
-                  {/* <Text noOfLines={1} fontSize={"xs"}>
-                  <ArtistsLinks artists={artists} />
-                </Text> */}
-                </Flex>
-                <Flex alignItems={"center"}>
-                  <Box w="8" position="relative">
-                    <EntityPlaybackButton
-                      sourceId={playbackState.playSource ?? ""}
-                      isSong
-                      size={"2rem"}
-                    />
-                  </Box>
-                  <IconButton
-                    sx={{
-                      _focus: {
-                        outline: "none",
-                        boxShadow: "none",
-                      },
-                    }}
-                    colorScheme={"blackAlpha"}
-                    opacity={0.6}
-                    background="none"
-                    aria-label="View more"
-                    icon={<AiOutlineMore size={"2rem"} />}
+                )}
+              </Flex>
+              <Flex alignItems={"center"}>
+                <Box w="8" position="relative">
+                  <EntityPlaybackButton
+                    sourceId={playbackState.playSource ?? ""}
+                    isSong
+                    size={"2rem"}
                   />
-                </Flex>
+                </Box>
+                <IconButton
+                  sx={{
+                    _focus: {
+                      outline: "none",
+                      boxShadow: "none",
+                    },
+                  }}
+                  colorScheme={"blackAlpha"}
+                  opacity={0.6}
+                  background="none"
+                  aria-label="View more"
+                  icon={<AiOutlineMore size={"2rem"} />}
+                />
               </Flex>
             </Flex>
-            {/* <Flex>
+          </Flex>
+          {/* <Flex>
               <Slider aria-label="Playback Control">
                 <SliderTrack>
                   <SliderFilledTrack />
@@ -152,11 +156,10 @@ const Player: React.FC<props> = () => {
                 <SliderThumb />
               </Slider>
             </Flex> */}
-          </Box>
-          <audio ref={audioRef} autoPlay src={playbackUrl}></audio>
-        </>
-      )}
-    </Flex>
+        </Flex>
+      </Flex>
+      <audio ref={audioRef} autoPlay src={playbackUrl}></audio>
+    </>
   );
 };
 
