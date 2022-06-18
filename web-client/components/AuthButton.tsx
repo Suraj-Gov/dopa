@@ -7,52 +7,46 @@ import { userActions } from "../slices/userSlice";
 import { storeStateT } from "../store";
 import { googleIdentityData } from "../types";
 
-const USER_NOT_LOGGEDIN = "USER_NOT_LOGGEDIN";
-
 const AuthButton = (props: IconButtonProps) => {
   const userState = useSelector((state: storeStateT) => state.user);
   const dispatch = useDispatch();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const toast = useToast();
 
-  const login = useCallback(async () => {
-    const user = await supabase.auth.user();
-    if (!user) throw new Error(USER_NOT_LOGGEDIN);
-    return user;
-  }, []);
+  const login = async () => {
+    if (!userState.user) {
+      const res = await supabase.auth.signIn({ provider: "google" });
+      if (res.user) {
+        userActions.onLogin(res.user);
+        setIsLoggedIn(true);
+      }
+    }
+  };
 
-  const logout = useCallback(async () => {
+  const logout = async () => {
     userActions.onLogout();
     await supabase.auth.signOut();
-  }, []);
+  };
 
   useEffect(() => {
-    login()
-      .then((u) => {
-        dispatch(userActions.onLogin(u));
-        const idArr = u.identities!;
-        const googleIdentityData = idArr[0].identity_data as googleIdentityData;
-        toast({
-          title: `Hey, ${googleIdentityData.full_name}`,
-        });
-      })
-      .catch((err) => {
-        if (err?.message === USER_NOT_LOGGEDIN) {
-          dispatch(userActions.onLogout());
-        } else {
-          toast({
-            status: "error",
-            title: "Couldn't login",
-            description: err?.message ?? "Something went wrong",
-          });
-        }
+    setTimeout(() => {
+      const user = supabase.auth.user();
+      setIsLoggedIn(Boolean(user));
+      if (!user) {
+        return;
+      }
+      dispatch(userActions.onLogin(user));
+      const idArr = user.identities!;
+      const googleIdentityData = idArr[0].identity_data as googleIdentityData;
+      toast({
+        title: `Hey, ${googleIdentityData.full_name}`,
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }, 2000);
+  }, [dispatch, toast]);
 
-  const isSignedIn = Boolean(userState.user);
-
-  if (isSignedIn) {
+  if (isLoggedIn) {
     return (
       <IconButton
         {...props}

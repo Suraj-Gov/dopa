@@ -8,6 +8,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
+import "@fontsource/roboto-flex";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -29,6 +30,13 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
     },
+  },
+});
+
+const theme = extendTheme({
+  fonts: {
+    heading: `'Roboto Flex', sans-serif`,
+    body: `'Roboto Flex', sans-serif`,
   },
 });
 
@@ -54,7 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [toast]);
 
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <Head>
         <title>Dopa</title>
         <meta name="viewport" content="width=device-width, user-scalable=no" />
