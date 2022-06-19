@@ -1,5 +1,5 @@
-import { User } from "@supabase/supabase-js";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "firebase/auth";
 
 const initialUserState = {
   user: null as User | null,

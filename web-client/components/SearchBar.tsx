@@ -6,6 +6,7 @@ import {
   InputProps,
   InputRightElement,
   Spinner,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
 import React, { useState } from "react";
@@ -17,9 +18,10 @@ interface props extends InputProps {
 }
 
 const SearchBar: React.FC<props> = ({ rightElement, isLoading, ...rest }) => {
+  const bg = useColorModeValue("whiteAlpha.500", "blackAlpha.500");
   return (
     <InputGroup
-      background="whiteAlpha.800"
+      background={bg}
       sx={{ backdropFilter: "blur(2px) saturate(180%)" }}
       dropShadow="2xl"
     >

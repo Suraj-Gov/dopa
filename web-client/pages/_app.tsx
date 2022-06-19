@@ -1,11 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
 import {
   Box,
   ChakraProvider,
   Container,
   extendTheme,
   Spacer,
-  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import "@fontsource/roboto-flex";
@@ -20,11 +18,6 @@ import "../styles/globals.css";
 import { store } from "../store";
 import { useEffect, useRef, useState } from "react";
 import RTCContext, { serverConfig } from "../components/Context/RTCContext";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,27 +35,14 @@ const theme = extendTheme({
 });
 
 // TODO change after deployment
-axios.defaults.baseURL = isProd
-  ? ""
-  : "https://evidence-arctic-magazine-pages.trycloudflare.com/api";
+axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const toast = useToast();
   const [pConn, setPConn] = useState<RTCPeerConnection | null>(null);
 
   useEffect(() => {
     setPConn(new RTCPeerConnection(serverConfig));
-    axios.interceptors.response.use((res) => {
-      if (res.status >= 400) {
-        toast({
-          status: "error",
-          title: "Something went wrong",
-          description: `${res.status} - ${res.statusText}`,
-        });
-      }
-      return res;
-    });
-  }, [toast]);
+  }, []);
 
   return (
     <ChakraProvider theme={theme}>

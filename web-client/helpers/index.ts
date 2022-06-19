@@ -28,3 +28,13 @@ export const formatSeconds = (duration: number) => {
   const seconds = (duration % 60).toFixed(0).padStart(2, "0");
   return `${minutes}:${seconds}`;
 };
+
+// https://stackoverflow.com/questions/25421233/javascript-removing-undefined-fields-from-an-object
+export const removeUndefined = (obj: any) => {
+  let newObj: any = {};
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === Object(obj[key])) newObj[key] = removeUndefined(obj[key]);
+    else if (obj[key] !== undefined) newObj[key] = obj[key];
+  });
+  return newObj;
+};

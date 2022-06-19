@@ -10,10 +10,17 @@ import {
   SliderTrack,
   Spinner,
   Text,
+  useColorModeValue,
   useMediaQuery,
 } from "@chakra-ui/react";
 import { useQuery } from "react-query";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import axios from "axios";
 import { jsSongI } from "../../types/jioSaavn";
 import SongCard from "./Cards/SongCard";
@@ -28,10 +35,16 @@ import { AiOutlineMore } from "react-icons/ai";
 import { formatSeconds } from "../helpers";
 import { MdSkipPrevious, MdSkipNext } from "react-icons/md";
 import RTCContext from "./Context/RTCContext";
+import { Player as PlayerType } from "../types";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { firebaseApp } from "../utils/firebaseClient";
+
+const db = getFirestore(firebaseApp);
 
 interface props {}
 
 const controlButtonProps = {
+  color: "black",
   sx: {
     _focus: {
       outline: "none",
@@ -51,13 +64,47 @@ const controlButtonProps = {
 
 // send playbackId, playbackTimestamp, isPlaying
 
+const DEFAULT_POLLING_INTERVAL = 5_000;
+
 const Player: React.FC<props> = () => {
   const [playbackUrl, setPlaybackUrl] = useState("");
   const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
   const [canViewControls, setCanViewControls] = useState(false);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timer | null>();
+
+  // timeouts are auto updated
+  const updatePlaybackStatus = useCallback(
+    (uid: string, playbackId: string, interval: number) => {
+      const id = setTimeout(async () => {
+        try {
+          await setDoc(
+            doc(db, "users", uid),
+            {
+              last_seen: new Date(),
+              playback_id: playbackId,
+            },
+            { merge: true }
+          );
+          // if success, have a normal interval
+          updatePlaybackStatus(uid, playbackId, DEFAULT_POLLING_INTERVAL);
+        } catch (error) {
+          console.error(error, `couldn't upsert user`);
+          // backoff delay in case of error
+          updatePlaybackStatus(uid, playbackId, interval + interval * 0.5);
+        }
+      }, interval);
+      timeoutRef.current = id;
+    },
+    []
+  );
+
+  const iconColor = useColorModeValue("black", "white");
+  controlButtonProps.color = iconColor;
 
   const playbackState = useSelector((state: storeStateT) => state.playback);
+  const userState = useSelector((state: storeStateT) => state.user);
+  const uid = userState?.user?.uid;
   const dispatch = useDispatch();
 
   const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
@@ -83,21 +130,47 @@ const Player: React.FC<props> = () => {
     id: playbackState.current,
     tz: playbackTimestamp,
     isPlaying: playbackState.isPlaying,
+    uid,
   });
 
-  /** setting up listeners */
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.onloadstart = () => setIsAudioLoaded(false);
-      audioRef.current.onloadeddata = () => setIsAudioLoaded(true);
-      if (playbackState.isPlaying) {
-        setIsAudioLoaded(true);
-        audioRef.current.play();
-      } else {
-        audioRef.current.pause();
+  useEffect(
+    function longPollPlaybackStatus() {
+      // do not update when not playing anything or has paused
+      if (!uid || !playbackState.current || !playbackState.isPlaying) {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = null;
+        return;
       }
-    }
-  }, [audioRef, dispatch, playbackState.isPlaying]);
+      // this will cancel the current timeout (if any) on any change in playback
+      // and then trigger a timeout again
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      updatePlaybackStatus(
+        uid,
+        playbackState.current,
+        DEFAULT_POLLING_INTERVAL
+      );
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [playbackState, uid]
+  );
+
+  useEffect(
+    function setupListeners() {
+      if (audioRef.current) {
+        audioRef.current.onloadstart = () => setIsAudioLoaded(false);
+        audioRef.current.onloadeddata = () => setIsAudioLoaded(true);
+        if (playbackState.isPlaying) {
+          setIsAudioLoaded(true);
+          audioRef.current.play();
+        } else {
+          audioRef.current.pause();
+        }
+      }
+    },
+    [audioRef, dispatch, playbackState.isPlaying]
+  );
 
   if (!playbackState.current) {
     return null;

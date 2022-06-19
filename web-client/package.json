@@ -9,15 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "^1.8.8",
+    "@chakra-ui/icons": "^2.0.2",
+    "@chakra-ui/react": "^2.2.1",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "@fontsource/roboto-flex": "^4.5.0",
     "@mantine/hooks": "^4.1.5",
     "@reduxjs/toolkit": "^1.8.2",
-    "@supabase/supabase-js": "^1.35.3",
     "axios": "^0.26.1",
     "debounce": "^1.2.1",
+    "firebase": "^9.8.3",
     "framer-motion": "^6",
     "next": "12.1.5",
     "nprogress": "^0.2.0",

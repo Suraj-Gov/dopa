@@ -1,3 +1,4 @@
+import { CloseIcon } from "@chakra-ui/icons";
 import {
   Box,
   Container,
@@ -10,6 +11,7 @@ import {
   Spacer,
   Stack,
   Text,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -20,7 +22,6 @@ import { BiLogInCircle } from "react-icons/bi";
 import { GrClose } from "react-icons/gr";
 import { useQuery } from "react-query";
 import { jsSearchResultsI } from "../../types/jioSaavn";
-import { supabase } from "../pages/_app";
 import Profile from "./Profile";
 import SongCard from "./Cards/SongCard";
 import CardsContainer from "./Containers/CardsContainer";
@@ -31,6 +32,7 @@ import SearchBar from "./SearchBar";
 interface props {}
 
 const Search: React.FC<props> = () => {
+  const drawerBg = useColorModeValue("gray.100", "gray.900");
   const [searchQuery, setSearchStr] = useState("");
   const [debouncedSearchStr] = useDebouncedValue(searchQuery, 500);
   const searchDrawerDisc = useDisclosure();
@@ -55,7 +57,7 @@ const Search: React.FC<props> = () => {
         searchResults.data.data;
 
       const topQuerySection = topquery?.data?.length && (
-        <Flex justifyContent={"center"} boxShadow={"xl"} p="3">
+        <Flex justifyContent={"center"} p="3">
           {topquery.data.map((entity) => (
             <RenderAnyEntity key={entity.id} entity={entity} />
           ))}
@@ -144,7 +146,7 @@ const Search: React.FC<props> = () => {
           value={searchQuery}
           onChange={({ target: { value } }) => setSearchStr(value)}
         />
-        <Profile ml="3" aria-label="Login" />
+        <Profile bg={drawerBg} ml="3" aria-label="Login" />
       </Flex>
       <Drawer
         allowPinchZoom={false}
@@ -154,7 +156,7 @@ const Search: React.FC<props> = () => {
         onClose={searchDrawerDisc.onClose}
         isFullHeight
       >
-        <DrawerContent bgColor={"gray.100"} borderRadius="6">
+        <DrawerContent bgColor={drawerBg} borderRadius="6">
           <DrawerBody px="4" pb="12">
             <Container position="relative" p="0" size="md">
               <Box zIndex={"overlay"} top="4" position={"sticky"}>
@@ -165,7 +167,7 @@ const Search: React.FC<props> = () => {
                       border="none"
                       background="none"
                       aria-label="Close"
-                      icon={<GrClose />}
+                      icon={<CloseIcon boxSize={"3"} />}
                       onClick={searchDrawerDisc.onClose}
                     />
                   }

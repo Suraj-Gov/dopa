@@ -33,7 +33,11 @@ const Home: NextPage = () => {
 
   return (
     <>
-      {getTrending.isLoading && <Spinner />}
+      {getTrending.isLoading && (
+        <Center>
+          <Spinner />
+        </Center>
+      )}
       {getTrending.isSuccess && (
         <>
           <CardsContainer justifyItems={"center"}>
