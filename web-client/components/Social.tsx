@@ -57,7 +57,7 @@ const auth = getAuth(firebaseApp);
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/userinfo.profile	");
 
-const Profile = (props: IconButtonProps) => {
+const Social = (props: IconButtonProps) => {
   const userState = useSelector((state: storeStateT) => state.user);
   const dispatch = useDispatch();
 
@@ -73,6 +73,7 @@ const Profile = (props: IconButtonProps) => {
     }
   };
 
+  // TODO
   const logout = async () => {
     auth.signOut();
     userActions.onLogout();
@@ -153,24 +154,31 @@ const Profile = (props: IconButtonProps) => {
             id: uid,
             last_seen: toJSDate(c.doc.data().last_seen),
           } as Users;
-          switch (c.type) {
-            case "added": {
-              setOnlineUsers((x) => [...x, playerData]);
-              break;
+          setOnlineUsers((x) => {
+            let newUsers: Users[] = [];
+            switch (c.type) {
+              case "added": {
+                newUsers = [...x, playerData];
+                break;
+              }
+              case "modified": {
+                newUsers = [...x].map((i) => (i.id === uid ? playerData : i));
+                break;
+              }
+              case "removed": {
+                newUsers = [...x].filter((i) => i.id !== uid);
+                break;
+              }
             }
-            case "modified": {
-              setOnlineUsers((x) => {
-                return [...x].map((i) => (i.id === uid ? playerData : i));
-              });
-              break;
-            }
-            case "removed": {
-              setOnlineUsers((x) => {
-                return [...x].filter((i) => i.id !== uid);
-              });
-              break;
-            }
-          }
+            // deduplicate with a map and return its values
+            const usersMap = newUsers.reduce((finObj, curr) => {
+              finObj ??= {};
+              finObj[curr.id] = curr;
+              return finObj;
+            }, {} as { [k: string]: any });
+
+            return Object.values(usersMap);
+          });
         });
       });
 
@@ -204,8 +212,7 @@ const Profile = (props: IconButtonProps) => {
           {onlineUsers.map((i) => (
             <Flex my="4" key={i.id}>
               <ViewUserPlayback
-                userPhotoUrl={i.userData?.photoURL ?? ""}
-                userDisplayName={i.userData?.displayName ?? "?"}
+                rUserData={i.userData}
                 playbackId={i.playback_id ?? ""}
               />
             </Flex>
@@ -252,4 +259,4 @@ const Profile = (props: IconButtonProps) => {
   );
 };
 
-export default Profile;
+export default Social;

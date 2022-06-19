@@ -2,21 +2,26 @@ import axios, { AxiosResponse } from "axios";
 import { useQuery } from "react-query";
 import { jsSongI } from "../../types/jioSaavn";
 
+type handlers = {
+  onQueryStart?: () => void;
+  onSuccess?: (data: AxiosResponse<jsSongI, any>) => void;
+};
+
 const usePlaybackDetails = (
   id: string | null,
-  onQueryStart?: () => void,
-  onSuccess?: (data: AxiosResponse<jsSongI, any>) => void
+  key?: any[],
+  handlers?: handlers
 ) =>
   useQuery(
-    ["playback", id],
+    ["playback", id, ...(key ?? [])],
     async () => {
-      onQueryStart && onQueryStart();
+      handlers?.onQueryStart && handlers.onQueryStart();
       // setPlaybackTimestamp(0);
       return await axios.get<jsSongI>(`/song/${id}`);
     },
     {
       enabled: !!id,
-      onSuccess,
+      onSuccess: handlers?.onSuccess,
     }
   );
 

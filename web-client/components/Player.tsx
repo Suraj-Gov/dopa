@@ -112,11 +112,10 @@ const Player: React.FC<props> = () => {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const playbackDetails = usePlaybackDetails(
-    playbackState.current,
-    () => setPlaybackTimestamp(0),
-    (res) => setPlaybackUrl(res.data.encrypted_media_url)
-  );
+  const playbackDetails = usePlaybackDetails(playbackState.current, [], {
+    onQueryStart: () => setPlaybackTimestamp(0),
+    onSuccess: (res) => setPlaybackUrl(res.data.encrypted_media_url),
+  });
 
   // TODO
   const playbackStreamData = JSON.stringify({

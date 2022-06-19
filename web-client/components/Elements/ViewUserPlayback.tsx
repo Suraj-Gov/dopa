@@ -1,29 +1,83 @@
-import { Box, Flex, Image, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Image, Spinner, Text, useToast } from "@chakra-ui/react";
+import { User } from "firebase/auth";
+import {
+  arrayUnion,
+  doc,
+  getFirestore,
+  runTransaction,
+  setDoc,
+} from "firebase/firestore";
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import usePlaybackDetails from "../../hooks/usePlaybackDetails";
+import { userActions } from "../../slices/userSlice";
+import { storeStateT } from "../../store";
+import { Users } from "../../types";
+import { firebaseApp } from "../../utils/firebaseClient";
+
+const db = getFirestore(firebaseApp);
 
 interface props {
   playbackId: string;
-  userDisplayName: string;
-  userPhotoUrl: string;
+  rUserData: User;
 }
 
-const ViewUserPlayback: React.FC<props> = ({
-  playbackId,
-  userDisplayName,
-  userPhotoUrl,
-}) => {
-  const playbackDetails = usePlaybackDetails(playbackId);
+const ViewUserPlayback: React.FC<props> = ({ playbackId, rUserData }) => {
+  const userState = useSelector((state: storeStateT) => state.user);
+  const dispatch = useDispatch();
+  const playbackDetails = usePlaybackDetails(playbackId, [rUserData?.uid]);
+
+  const toast = useToast();
+
+  if (!rUserData) {
+    console.error("rUserData is nullish");
+    return null;
+  }
 
   if (playbackDetails.isLoading) {
     return <Spinner size="xs" />;
   }
 
+  const listenToUser = async () => {
+    if (userState.user) {
+      dispatch(userActions.setRUser(rUserData));
+      const currentUserRef = doc(db, "users", userState.user.uid);
+      const rUserRef = doc(db, "users", rUserData.uid);
+      try {
+        await runTransaction(db, async (t) => {
+          t.set(
+            currentUserRef,
+            { listen_to: arrayUnion(rUserData.uid) },
+            { merge: true }
+          );
+          t.set(rUserRef, { listeners: arrayUnion(rUserData.uid) }),
+            { merge: true };
+          Promise.resolve();
+        });
+        toast({
+          title: `Now listening with ${rUserData.displayName}`,
+          status: "info",
+        });
+      } catch (err: any) {
+        toast({
+          title: `Couldn't listen with ${rUserData.displayName}`,
+          status: "error",
+          description: err?.message ?? "Something went wrong",
+        });
+      }
+    }
+  };
+
   const title = playbackDetails.data?.data.song;
   const albumArtUrl = playbackDetails.data?.data.image;
 
   return (
-    <Flex alignItems={"center"}>
+    <Flex
+      onClick={listenToUser}
+      cursor={"pointer"}
+      role="button"
+      alignItems={"center"}
+    >
       <Box position={"relative"}>
         <Image
           position={"absolute"}
@@ -31,8 +85,8 @@ const ViewUserPlayback: React.FC<props> = ({
           bottom="2"
           boxSize={"5"}
           borderRadius="full"
-          src={userPhotoUrl}
-          alt={userDisplayName}
+          src={rUserData?.photoURL ?? ""}
+          alt={rUserData?.displayName ?? "?"}
         />
         {playbackDetails.isLoading ? (
           <Spinner size="lg" />
@@ -50,7 +104,7 @@ const ViewUserPlayback: React.FC<props> = ({
           {title}
         </Text>
         <Text noOfLines={1} fontSize="sm">
-          {userDisplayName}
+          {rUserData.displayName ?? "?"}
         </Text>
       </Box>
     </Flex>

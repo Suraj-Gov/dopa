@@ -11,6 +11,7 @@ export type Users = {
   id: string;
   last_seen?: Date;
   playback_id?: string;
-  listen_to?: string;
+  listen_to?: string[];
+  listeners?: string[];
   userData: User;
 };

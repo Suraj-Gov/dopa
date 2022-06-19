@@ -3,6 +3,7 @@ import { User } from "firebase/auth";
 
 const initialUserState = {
   user: null as User | null,
+  rUser: null as User | null,
 };
 
 export type userStateT = typeof initialUserState;
@@ -16,6 +17,9 @@ export const userSlice = createSlice({
     },
     onLogout: (state) => {
       state.user = null;
+    },
+    setRUser: (state, action: PayloadAction<User>) => {
+      state.rUser = action.payload;
     },
   },
 });
