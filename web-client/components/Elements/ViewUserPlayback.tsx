@@ -34,12 +34,20 @@ const ViewUserPlayback: React.FC<props> = ({ playbackId, rUserData }) => {
     return null;
   }
 
+  if (!userState.user?.uid) {
+    // if you're not logged in yet (this shouldn't even happen)
+    return null;
+  }
+
   if (playbackDetails.isLoading) {
     return <Spinner size="xs" />;
   }
 
   const listenToUser = async () => {
     if (userState.user) {
+      if (userState.user.uid === rUserData.uid) {
+        return;
+      }
       dispatch(userActions.setRUser(rUserData));
       const currentUserRef = doc(db, "users", userState.user.uid);
       const rUserRef = doc(db, "users", rUserData.uid);
@@ -50,9 +58,12 @@ const ViewUserPlayback: React.FC<props> = ({ playbackId, rUserData }) => {
             { listen_to: arrayUnion(rUserData.uid) },
             { merge: true }
           );
-          t.set(rUserRef, { listeners: arrayUnion(rUserData.uid) }),
-            { merge: true };
-          Promise.resolve();
+          t.set(
+            rUserRef,
+            { listeners: arrayUnion(rUserData.uid) },
+            { merge: true }
+          ),
+            Promise.resolve();
         });
         toast({
           title: `Now listening with ${rUserData.displayName}`,
@@ -104,7 +115,9 @@ const ViewUserPlayback: React.FC<props> = ({ playbackId, rUserData }) => {
           {title}
         </Text>
         <Text noOfLines={1} fontSize="sm">
-          {rUserData.displayName ?? "?"}
+          {rUserData.uid === userState.user?.uid
+            ? "You"
+            : rUserData.displayName ?? "?"}
         </Text>
       </Box>
     </Flex>

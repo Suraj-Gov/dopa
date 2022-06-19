@@ -6,6 +6,7 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerHeader,
+  DrawerOverlay,
   Flex,
   IconButton,
   IconButtonProps,
@@ -119,7 +120,7 @@ const Social = (props: IconButtonProps) => {
       if (!userState.user) {
         return;
       }
-      const tz = new Date(Date.now() - 30_000);
+      const tz = new Date(Date.now() - REFRESH_INTERVAL);
       const activePlayersQ = query(
         collection(db, "users"),
         where("last_seen", ">", tz)
@@ -227,7 +228,8 @@ const Social = (props: IconButtonProps) => {
       <>
         <IconButton
           {...props}
-          aria-label="Log out"
+          aria-label="View online users"
+          isDisabled={!onlineUsers.length}
           icon={<BsHeadphones />}
           onClick={drawerDisc.onOpen}
         />
