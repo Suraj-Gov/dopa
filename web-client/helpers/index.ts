@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { jsAnyI } from "../../types/jioSaavn";
 import { jioSaavnTypes } from "../types/jioSaavn";
 
@@ -31,10 +32,18 @@ export const formatSeconds = (duration: number) => {
 
 // https://stackoverflow.com/questions/25421233/javascript-removing-undefined-fields-from-an-object
 export const removeUndefined = (obj: any) => {
+  if (!obj) return obj;
   let newObj: any = {};
   Object.keys(obj).forEach((key) => {
     if (obj[key] === Object(obj[key])) newObj[key] = removeUndefined(obj[key]);
     else if (obj[key] !== undefined) newObj[key] = obj[key];
   });
   return newObj;
+};
+
+export const toJSDate = (
+  args: { seconds: number; nanoseconds: number } | any
+) => {
+  const { seconds, nanoseconds } = args;
+  return new Timestamp(seconds, nanoseconds).toDate();
 };

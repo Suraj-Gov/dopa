@@ -1,20 +1,30 @@
 import {
+  Box,
   Container,
   Drawer,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
   DrawerHeader,
+  Flex,
   IconButton,
   IconButtonProps,
+  Image,
+  Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { BsHeadphones } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { userActions } from "../slices/userSlice";
 import { storeStateT } from "../store";
-import { googleIdentityData, Player } from "../types";
+import { googleIdentityData, Users } from "../types";
 import {
   getAuth,
   signInWithRedirect,
@@ -32,11 +42,15 @@ import {
   query,
   where,
   onSnapshot,
+  Timestamp,
 } from "firebase/firestore";
 import { firebaseApp } from "../utils/firebaseClient";
 import { BiLogIn } from "react-icons/bi";
 import useToast from "../hooks/useToast";
-import { removeUndefined } from "../helpers";
+import { removeUndefined, toJSDate } from "../helpers";
+import ViewUserPlayback from "./Elements/ViewUserPlayback";
+
+const REFRESH_INTERVAL = 20_000;
 
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
@@ -48,7 +62,7 @@ const Profile = (props: IconButtonProps) => {
   const dispatch = useDispatch();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Player[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<Users[]>([]);
 
   const toast = useToast();
 
@@ -99,57 +113,107 @@ const Profile = (props: IconButtonProps) => {
     [dispatch]
   );
 
-  useEffect(() => {
-    if (!userState.user) {
-      return;
-    }
-    const tz = new Date(Date.now() - 30_000);
-    const activePlayersQ = query(
-      collection(db, "users"),
-      where("last_seen", ">", tz)
-    );
-    const fetchPlayers = async () => {
-      try {
-        const players = await getDocs(activePlayersQ);
-        const playersArr = players.docs.map((d) => ({ id: d.id, ...d.data() }));
-        setOnlineUsers(playersArr as Player[]);
-      } catch (err) {
-        console.error(`couldn't fetch players`);
+  useEffect(
+    function subToOnlineUsers() {
+      if (!userState.user) {
+        return;
       }
-    };
-    fetchPlayers();
-    const unSubActivePlayers = onSnapshot(activePlayersQ, (snapshot) => {
-      const changes = snapshot.docChanges();
-      changes.forEach((c) => {
-        const uid = c.doc.id;
-        const playerData = { ...c.doc.data(), id: uid } as Player;
-        switch (c.type) {
-          case "added": {
-            setOnlineUsers((x) => [...x, { ...playerData, id: uid }]);
-            break;
-          }
-          case "modified": {
-            setOnlineUsers((x) => {
-              return [...x].map((i) => (i.id === uid ? playerData : i));
-            });
-            break;
-          }
-          case "removed": {
-            setOnlineUsers((x) => {
-              return [...x].filter((i) => i.id !== uid);
-            });
-            break;
-          }
+      const tz = new Date(Date.now() - 30_000);
+      const activePlayersQ = query(
+        collection(db, "users"),
+        where("last_seen", ">", tz)
+      );
+      const fetchPlayers = async () => {
+        // do not populate if not empty
+        if (onlineUsers.length) {
+          return;
         }
+        try {
+          const players = await getDocs(activePlayersQ);
+          const playersArr = players.docs.map(
+            (d) =>
+              ({
+                ...d.data(),
+                id: d.id,
+                last_seen: toJSDate(d.data().last_seen),
+              } as Users)
+          );
+          setOnlineUsers(playersArr as Users[]);
+        } catch (err) {
+          console.error(`couldn't fetch players`);
+        }
+      };
+      fetchPlayers();
+      const unSubActivePlayers = onSnapshot(activePlayersQ, (snapshot) => {
+        const changes = snapshot.docChanges();
+        changes.forEach((c) => {
+          const uid = c.doc.id;
+          const playerData = {
+            ...c.doc.data(),
+            id: uid,
+            last_seen: toJSDate(c.doc.data().last_seen),
+          } as Users;
+          switch (c.type) {
+            case "added": {
+              setOnlineUsers((x) => [...x, playerData]);
+              break;
+            }
+            case "modified": {
+              setOnlineUsers((x) => {
+                return [...x].map((i) => (i.id === uid ? playerData : i));
+              });
+              break;
+            }
+            case "removed": {
+              setOnlineUsers((x) => {
+                return [...x].filter((i) => i.id !== uid);
+              });
+              break;
+            }
+          }
+        });
       });
-    });
 
-    return () => {
-      unSubActivePlayers();
-    };
-  }, [userState]);
+      return () => {
+        unSubActivePlayers();
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userState]
+  );
+
+  useEffect(function removeStaleUsers() {
+    setInterval(() => {
+      setOnlineUsers((users) => {
+        return users.filter(
+          (u) => (u.last_seen?.getTime() ?? 0) > Date.now() - REFRESH_INTERVAL
+        );
+      });
+    }, REFRESH_INTERVAL);
+  });
 
   const drawerDisc = useDisclosure();
+
+  const renderOnlineUsers = useMemo(() => {
+    return (
+      <Box>
+        <Text fontSize={"xl"} fontWeight={"bold"}>
+          Online
+        </Text>
+        <Box>
+          {onlineUsers.map((i) => (
+            <Flex my="4" key={i.id}>
+              <ViewUserPlayback
+                userPhotoUrl={i.userData?.photoURL ?? ""}
+                userDisplayName={i.userData?.displayName ?? "?"}
+                playbackId={i.playback_id ?? ""}
+              />
+            </Flex>
+          ))}
+        </Box>
+      </Box>
+    );
+  }, [onlineUsers]);
 
   if (isLoggedIn) {
     return (
@@ -166,11 +230,10 @@ const Profile = (props: IconButtonProps) => {
           onClose={drawerDisc.onClose}
         >
           <DrawerContent borderRadius="6">
-            <DrawerCloseButton mt="2" mr="2" />
+            <DrawerCloseButton zIndex={"50"} mt="2" mr="2" />
             <DrawerBody>
-              <DrawerHeader>Listen Along</DrawerHeader>
-              <Container position="relative" size="md">
-                {JSON.stringify(onlineUsers, null, 2)}
+              <Container mt="4" position="relative" size="md">
+                {renderOnlineUsers}
               </Container>
             </DrawerBody>
           </DrawerContent>

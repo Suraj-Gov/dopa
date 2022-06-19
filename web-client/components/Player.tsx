@@ -35,9 +35,10 @@ import { AiOutlineMore } from "react-icons/ai";
 import { formatSeconds } from "../helpers";
 import { MdSkipPrevious, MdSkipNext } from "react-icons/md";
 import RTCContext from "./Context/RTCContext";
-import { Player as PlayerType } from "../types";
+import { Users as PlayerType } from "../types";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { firebaseApp } from "../utils/firebaseClient";
+import usePlaybackDetails from "../hooks/usePlaybackDetails";
 
 const db = getFirestore(firebaseApp);
 
@@ -109,21 +110,13 @@ const Player: React.FC<props> = () => {
 
   const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
 
-  const playbackDetails = useQuery(
-    ["playback", playbackState.current],
-    async () => {
-      setPlaybackTimestamp(0);
-      return await axios.get<jsSongI>(`/song/${playbackState.current}`);
-    },
-    {
-      enabled: !!playbackState.current,
-      onSuccess: (res) => {
-        setPlaybackUrl(res.data.encrypted_media_url);
-      },
-    }
-  );
-
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  const playbackDetails = usePlaybackDetails(
+    playbackState.current,
+    () => setPlaybackTimestamp(0),
+    (res) => setPlaybackUrl(res.data.encrypted_media_url)
+  );
 
   // TODO
   const playbackStreamData = JSON.stringify({
@@ -222,6 +215,7 @@ const Player: React.FC<props> = () => {
     >
       <IconButton
         {...controlButtonProps}
+        color="white"
         aria-label="Play previous song"
         onClick={audioControls.goPrevious}
         icon={<MdSkipPrevious size="2rem" />}
@@ -248,6 +242,7 @@ const Player: React.FC<props> = () => {
       </Text>
       <IconButton
         {...controlButtonProps}
+        color="white"
         aria-label="Play next song"
         onClick={audioControls.goNext}
         icon={<MdSkipNext size={"2rem"} />}

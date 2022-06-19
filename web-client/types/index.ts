@@ -1,3 +1,5 @@
+import { User } from "firebase/auth";
+
 export type googleIdentityData = {
   avatar_url: string;
   email: string;
@@ -5,14 +7,10 @@ export type googleIdentityData = {
   picture: string;
 };
 
-export type Player = {
+export type Users = {
   id: string;
   last_seen?: Date;
   playback_id?: string;
   listen_to?: string;
-};
-
-export type Users = {
-  id: string;
-  // details: User;
+  userData: User;
 };
