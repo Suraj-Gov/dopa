@@ -156,21 +156,8 @@ const Social = (props: IconButtonProps) => {
             last_seen: toJSDate(c.doc.data().last_seen),
           } as Users;
           setOnlineUsers((x) => {
-            let newUsers: Users[] = [];
-            switch (c.type) {
-              case "added": {
-                newUsers = [...x, playerData];
-                break;
-              }
-              case "modified": {
-                newUsers = [...x].map((i) => (i.id === uid ? playerData : i));
-                break;
-              }
-              case "removed": {
-                newUsers = [...x].filter((i) => i.id !== uid);
-                break;
-              }
-            }
+            const newUsers = [...x, playerData];
+
             // deduplicate with a map and return its values
             const usersMap = newUsers.reduce((finObj, curr) => {
               finObj ??= {};

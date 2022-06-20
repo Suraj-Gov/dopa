@@ -34,11 +34,22 @@ import { GrMore } from "react-icons/gr";
 import { AiOutlineMore } from "react-icons/ai";
 import { formatSeconds } from "../helpers";
 import { MdSkipPrevious, MdSkipNext } from "react-icons/md";
-import RTCContext from "./Context/RTCContext";
-import { Users as PlayerType } from "../types";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import {
+  PeerJS,
+  playbackPayloadDataT,
+  StreamPayloadT,
+  Users as PlayerType,
+} from "../types";
+import {
+  addDoc,
+  collection,
+  doc,
+  getFirestore,
+  setDoc,
+} from "firebase/firestore";
 import { firebaseApp } from "../utils/firebaseClient";
 import usePlaybackDetails from "../hooks/usePlaybackDetails";
+import { DataConnection } from "peerjs";
 
 const db = getFirestore(firebaseApp);
 
@@ -68,10 +79,14 @@ const controlButtonProps = {
 const DEFAULT_POLLING_INTERVAL = 5_000;
 
 const Player: React.FC<props> = () => {
+  const connToPeer = useRef<DataConnection>();
+  const [peer, setPeer] = useState<PeerJS>();
+
   const [playbackUrl, setPlaybackUrl] = useState("");
   const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
   const [canViewControls, setCanViewControls] = useState(false);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+
   const timeoutRef = useRef<NodeJS.Timer | null>();
 
   // timeouts are auto updated
@@ -105,7 +120,8 @@ const Player: React.FC<props> = () => {
 
   const playbackState = useSelector((state: storeStateT) => state.playback);
   const userState = useSelector((state: storeStateT) => state.user);
-  const uid = userState?.user?.uid;
+  const uid = userState.user?.uid;
+  const rUid = userState.rUser?.uid;
   const dispatch = useDispatch();
 
   const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
@@ -117,13 +133,49 @@ const Player: React.FC<props> = () => {
     onSuccess: (res) => setPlaybackUrl(res.data.encrypted_media_url),
   });
 
-  // TODO
-  const playbackStreamData = JSON.stringify({
-    id: playbackState.current,
-    tz: playbackTimestamp,
-    isPlaying: playbackState.isPlaying,
-    uid,
-  });
+  useEffect(() => {
+    if (!uid) {
+      return;
+    }
+    const init = async () => {
+      const Peer = (await import("peerjs")).default;
+      const peer = new Peer(uid);
+      setPeer(peer);
+      peer.on("open", (id) => `peer open - ${id}`);
+      peer.on("connection", (conn) => {
+        console.log(`got a connection`, conn);
+        conn.on("open", () => {
+          conn.send(playbackState);
+        });
+      });
+    };
+    if (!peer) {
+      init();
+    } else {
+      if (!rUid) {
+        return;
+      }
+      const conn = peer.connect(rUid);
+      conn.on("open", () => {
+        conn.on("data", (d) => console.log(`received data`, d));
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rUid, uid]);
+
+  useEffect(() => {
+    peer?.on("connection", (conn) => {
+      console.log(`got a connection`, conn);
+      conn.on("open", () => {
+        connToPeer.current = conn;
+      });
+    });
+  }, [peer]);
+
+  useEffect(() => {
+    console.log("sending");
+    connToPeer.current?.send(playbackState);
+  }, [connToPeer, playbackState]);
 
   useEffect(
     function longPollPlaybackStatus() {
@@ -187,7 +239,7 @@ const Player: React.FC<props> = () => {
   const playbackData = playbackDetails.data?.data;
 
   const artists = Object.entries(playbackData?.artistMap ?? {}).reduce(
-    (fin, [name, id]) => {
+    (fin, [name, _id]) => {
       fin ??= [];
       fin.push({
         name,

@@ -1,4 +1,5 @@
 import { User } from "firebase/auth";
+import Peer from "peerjs";
 
 export type googleIdentityData = {
   avatar_url: string;
@@ -15,3 +16,17 @@ export type Users = {
   listeners?: string[];
   userData: User;
 };
+
+export type playbackPayloadDataT = {
+  id?: string | null;
+  tz: number;
+  isPlaying: boolean;
+  uid?: string;
+};
+
+export type StreamPayloadT = {
+  message: "init";
+  playbackPayloadData: playbackPayloadDataT;
+};
+
+export interface PeerJS extends Peer {}

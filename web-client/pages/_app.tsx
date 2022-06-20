@@ -13,11 +13,9 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import Player from "../components/Player";
 import Search from "../components/Search";
 import { isProd } from "../constants";
-import { Provider as ReduxProvider } from "react-redux";
+import { Provider as ReduxProvider, useSelector } from "react-redux";
 import "../styles/globals.css";
-import { store } from "../store";
-import { useEffect, useRef, useState } from "react";
-import RTCContext, { serverConfig } from "../components/Context/RTCContext";
+import { store, storeStateT } from "../store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,12 +36,6 @@ const theme = extendTheme({
 axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [pConn, setPConn] = useState<RTCPeerConnection | null>(null);
-
-  useEffect(() => {
-    setPConn(new RTCPeerConnection(serverConfig));
-  }, []);
-
   return (
     <ChakraProvider theme={theme}>
       <Head>
@@ -52,21 +44,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <ReduxProvider store={store}>
-          <RTCContext.Provider
-            value={{
-              pConn: pConn,
-              localStream: null as null | MediaStreamTrack,
-              remoteStream: null as null | MediaStreamTrack,
-            }}
-          >
-            <Container position={"relative"} maxW="2xl">
-              <Search />
-              <Spacer h="2rem" />
-              <Component {...pageProps} />
-              <Player />
-              <Spacer h="8rem" />
-            </Container>
-          </RTCContext.Provider>
+          <Container position={"relative"} maxW="2xl">
+            <Search />
+            <Spacer h="2rem" />
+            <Component {...pageProps} />
+            <Player />
+            <Spacer h="8rem" />
+          </Container>
         </ReduxProvider>
       </QueryClientProvider>
     </ChakraProvider>
