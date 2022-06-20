@@ -18,10 +18,9 @@ export type Users = {
 };
 
 export type playbackPayloadDataT = {
-  id?: string | null;
+  id: string;
   tz: number;
   isPlaying: boolean;
-  uid?: string;
 };
 
 export type StreamPayloadT = {

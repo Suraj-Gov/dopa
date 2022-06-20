@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { playbackPayloadDataT } from "../types";
 
 const initialPlaybackState = {
   current: null as string | null,
@@ -66,6 +67,12 @@ export const playbackSlice = createSlice({
       } else {
         state.isPlaying = !state.isPlaying;
       }
+    },
+    remoteSync: (state, action: PayloadAction<playbackPayloadDataT>) => {
+      state.current = null;
+      state.songQueuePos = 0;
+      state.playbackIdArr = [action.payload.id];
+      state.isPlaying = action.payload.isPlaying;
     },
   },
 });

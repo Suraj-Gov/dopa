@@ -157,7 +157,10 @@ const Player: React.FC<props> = () => {
       }
       const conn = peer.connect(rUid);
       conn.on("open", () => {
-        conn.on("data", (d) => console.log(`received data`, d));
+        conn.on("data", (d) => {
+          const payload = d as playbackPayloadDataT;
+          dispatch(playbackActions.remoteSync(payload));
+        });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -173,9 +176,12 @@ const Player: React.FC<props> = () => {
   }, [peer]);
 
   useEffect(() => {
-    console.log("sending");
-    connToPeer.current?.send(playbackState);
-  }, [connToPeer, playbackState]);
+    connToPeer.current?.send({
+      id: playbackState.current,
+      isPlaying: playbackState.isPlaying,
+      tz: playbackTimestamp,
+    } as playbackPayloadDataT);
+  }, [connToPeer, playbackState, playbackTimestamp]);
 
   useEffect(
     function longPollPlaybackStatus() {
@@ -368,6 +374,7 @@ const Player: React.FC<props> = () => {
                   </Box>
                   {isMobile && (
                     <IconButton
+                      isDisabled={playbackState.current === null}
                       onClick={() => setCanViewControls((x) => !x)}
                       {...controlButtonProps}
                       aria-label="View more"
