@@ -69,7 +69,7 @@ export const playbackSlice = createSlice({
       }
     },
     remoteSync: (state, action: PayloadAction<playbackPayloadDataT>) => {
-      state.current = null;
+      state.current = action.payload.id;
       state.songQueuePos = 0;
       state.playbackIdArr = [action.payload.id];
       state.isPlaying = action.payload.isPlaying;

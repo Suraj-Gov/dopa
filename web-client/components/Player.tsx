@@ -81,6 +81,8 @@ const DEFAULT_POLLING_INTERVAL = 5_000;
 const Player: React.FC<props> = () => {
   const connToPeer = useRef<DataConnection>();
   const [peer, setPeer] = useState<PeerJS>();
+  const rttStart = useRef<number>();
+  const [finalRtt, setFinalRtt] = useState(0);
 
   const [playbackUrl, setPlaybackUrl] = useState("");
   const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
@@ -88,6 +90,8 @@ const Player: React.FC<props> = () => {
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timer | null>();
+
+  console.log(playbackTimestamp);
 
   // timeouts are auto updated
   const updatePlaybackStatus = useCallback(
@@ -127,6 +131,12 @@ const Player: React.FC<props> = () => {
   const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const onPlaybackTimestampChange = (tz: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = Number(tz);
+      setPlaybackTimestamp(tz);
+    }
+  };
 
   const playbackDetails = usePlaybackDetails(playbackState.current, [], {
     onQueryStart: () => setPlaybackTimestamp(0),
@@ -142,12 +152,6 @@ const Player: React.FC<props> = () => {
       const peer = new Peer(uid);
       setPeer(peer);
       peer.on("open", (id) => `peer open - ${id}`);
-      peer.on("connection", (conn) => {
-        console.log(`got a connection`, conn);
-        conn.on("open", () => {
-          conn.send(playbackState);
-        });
-      });
     };
     if (!peer) {
       init();
@@ -158,8 +162,18 @@ const Player: React.FC<props> = () => {
       const conn = peer.connect(rUid);
       conn.on("open", () => {
         conn.on("data", (d) => {
+          if (d === "ping1") {
+            rttStart.current = Date.now();
+            conn.send("pong");
+            return;
+          } else if (d === "ping2") {
+            const finalRtt = Date.now() - (rttStart.current ?? Date.now());
+            console.log({ finalRtt, rttStart: rttStart?.current });
+            setFinalRtt(finalRtt);
+          }
           const payload = d as playbackPayloadDataT;
           dispatch(playbackActions.remoteSync(payload));
+          onPlaybackTimestampChange(payload.tz - finalRtt);
         });
       });
     }
@@ -170,7 +184,12 @@ const Player: React.FC<props> = () => {
     peer?.on("connection", (conn) => {
       console.log(`got a connection`, conn);
       conn.on("open", () => {
+        conn.on("data", (d) => {
+          if (d === "pong") conn.send("ping2");
+        });
         connToPeer.current = conn;
+        conn.send("ping1");
+        rttStart.current = Date.now();
       });
     });
   }, [peer]);
@@ -225,13 +244,6 @@ const Player: React.FC<props> = () => {
   if (!playbackState.current) {
     return null;
   }
-
-  const onPlaybackTimestampChange = (tz: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = tz;
-      setPlaybackTimestamp(tz);
-    }
-  };
 
   const audioControls = {
     onPlay: () => dispatch(playbackActions.toggle(true)),
