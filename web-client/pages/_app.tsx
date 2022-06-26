@@ -32,8 +32,9 @@ const theme = extendTheme({
   },
 });
 
-// TODO change after deployment
-axios.defaults.baseURL = isProd ? "" : "http://localhost:4000/api";
+axios.defaults.baseURL = isProd
+  ? "https://dopa-server.fly.dev/api"
+  : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

@@ -45,10 +45,14 @@ server.register(trendingRoutes, { prefix: "/api/trending" });
 
 const PORT = process.env.PORT || 4000;
 
-server.listen(PORT, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-  logger.info(`listening on ${address}`);
-});
+const start = () => {
+  server.listen(PORT, "0.0.0.0", (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    logger.info(`listening on ${address}`);
+  });
+};
+
+start();
