@@ -91,8 +91,6 @@ const Player: React.FC<props> = () => {
 
   const timeoutRef = useRef<NodeJS.Timer | null>();
 
-  console.log(playbackTimestamp);
-
   // timeouts are auto updated
   const updatePlaybackStatus = useCallback(
     (uid: string, playbackId: string, interval: number) => {
@@ -170,7 +168,8 @@ const Player: React.FC<props> = () => {
             const finalRtt =
               (Date.now() - (rttStart.current ?? Date.now())) * 2;
             console.log({ finalRtt, rttStart: rttStart?.current });
-            setFinalRtt(finalRtt);
+            // avg
+            setFinalRtt((x) => (finalRtt + x) / 2);
           }
           const payload = d as playbackPayloadDataT;
           dispatch(playbackActions.remoteSync(payload));
