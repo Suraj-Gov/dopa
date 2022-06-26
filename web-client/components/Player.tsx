@@ -165,8 +165,7 @@ const Player: React.FC<props> = () => {
             conn.send("pong");
             return;
           } else if (d === "ping2") {
-            const finalRtt =
-              (Date.now() - (rttStart.current ?? Date.now())) * 2;
+            const finalRtt = Date.now() - (rttStart.current ?? Date.now());
             console.log({ finalRtt, rttStart: rttStart?.current });
             // avg
             setFinalRtt((x) => (finalRtt + x) / 2);
