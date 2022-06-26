@@ -167,13 +167,14 @@ const Player: React.FC<props> = () => {
             conn.send("pong");
             return;
           } else if (d === "ping2") {
-            const finalRtt = Date.now() - (rttStart.current ?? Date.now());
+            const finalRtt =
+              (Date.now() - (rttStart.current ?? Date.now())) * 2;
             console.log({ finalRtt, rttStart: rttStart?.current });
             setFinalRtt(finalRtt);
           }
           const payload = d as playbackPayloadDataT;
           dispatch(playbackActions.remoteSync(payload));
-          onPlaybackTimestampChange(payload.tz + finalRtt);
+          onPlaybackTimestampChange(payload.tz - finalRtt);
         });
       });
     }
