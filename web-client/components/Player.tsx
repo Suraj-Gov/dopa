@@ -173,7 +173,7 @@ const Player: React.FC<props> = () => {
           }
           const payload = d as playbackPayloadDataT;
           dispatch(playbackActions.remoteSync(payload));
-          onPlaybackTimestampChange(payload.tz - finalRtt);
+          onPlaybackTimestampChange(payload.tz + finalRtt);
         });
       });
     }
