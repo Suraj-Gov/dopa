@@ -51,8 +51,11 @@ const Search: React.FC<props> = () => {
     }
   );
 
+  const hasLoadedSearchResults =
+    searchResults.isSuccess && Boolean(searchQuery);
+
   const renderSearchResults = useMemo(() => {
-    if (searchResults.isSuccess && searchQuery) {
+    if (hasLoadedSearchResults) {
       const { albums, artists, playlists, songs, topquery } =
         searchResults.data.data;
 
@@ -130,7 +133,7 @@ const Search: React.FC<props> = () => {
         Search for music, artists, albums and more!
       </Text>
     );
-  }, [searchResults, searchQuery]);
+  }, [hasLoadedSearchResults, searchResults.data?.data]);
 
   return (
     <>
@@ -155,6 +158,7 @@ const Search: React.FC<props> = () => {
         isOpen={searchDrawerDisc.isOpen}
         onClose={searchDrawerDisc.onClose}
         isFullHeight
+        size={"full"}
       >
         <DrawerContent bgColor={drawerBg} borderRadius="6">
           <DrawerBody px="4" pb="12">

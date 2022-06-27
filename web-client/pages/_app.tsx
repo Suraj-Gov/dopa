@@ -1,3 +1,4 @@
+import "nprogress/nprogress.css";
 import {
   Box,
   ChakraProvider,
@@ -16,6 +17,9 @@ import { isProd } from "../constants";
 import { Provider as ReduxProvider, useSelector } from "react-redux";
 import "../styles/globals.css";
 import { store, storeStateT } from "../store";
+import { useEffect } from "react";
+import { Router } from "next/router";
+import nProgress from "nprogress";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +41,21 @@ axios.defaults.baseURL = isProd
   : "http://localhost:4000/api";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  // https://caspertheghost.me/blog/nprogress-next-js
+  const handleRouteStart = () => nProgress.start();
+  const handleRouteDone = () => nProgress.done();
+
+  useEffect(() => {
+    Router.events.on("routeChangeStart", handleRouteStart);
+    Router.events.on("routeChangeComplete", handleRouteDone);
+    Router.events.on("routeChangeError", handleRouteDone);
+    return () => {
+      Router.events.off("routeChangeStart", handleRouteStart);
+      Router.events.off("routeChangeComplete", handleRouteDone);
+      Router.events.off("routeChangeError", handleRouteDone);
+    };
+  }, []);
+
   return (
     <ChakraProvider theme={theme}>
       <Head>
