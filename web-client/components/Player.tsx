@@ -50,8 +50,8 @@ import {
 import { firebaseApp } from "../utils/firebaseClient";
 import usePlaybackDetails from "../hooks/usePlaybackDetails";
 import { DataConnection } from "peerjs";
-
-const db = getFirestore(firebaseApp);
+import useOnlinePresence from "../hooks/useOnlinePresence";
+import usePeerComms from "../hooks/usePeerComms";
 
 interface props {}
 
@@ -76,49 +76,25 @@ const controlButtonProps = {
 
 // send playbackId, playbackTimestamp, isPlaying
 
-const DEFAULT_POLLING_INTERVAL = 5_000;
-
 const Player: React.FC<props> = () => {
-  const connToPeer = useRef<DataConnection>();
-  const [peer, setPeer] = useState<PeerJS>();
-  const rttStart = useRef<number>();
-  const [finalRtt, setFinalRtt] = useState(0);
-
-  const [playbackUrl, setPlaybackUrl] = useState("");
-  const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
-  const [canViewControls, setCanViewControls] = useState(false);
-  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
-
-  const timeoutRef = useRef<NodeJS.Timer | null>();
-
-  // timeouts are auto updated
-  const updatePlaybackStatus = useCallback(
-    (uid: string, playbackId: string, interval: number) => {
-      const id = setTimeout(async () => {
-        try {
-          await setDoc(
-            doc(db, "users", uid),
-            {
-              last_seen: new Date(),
-              playback_id: playbackId,
-            },
-            { merge: true }
-          );
-          // if success, have a normal interval
-          updatePlaybackStatus(uid, playbackId, DEFAULT_POLLING_INTERVAL);
-        } catch (error) {
-          console.error(error, `couldn't upsert user`);
-          // backoff delay in case of error
-          updatePlaybackStatus(uid, playbackId, interval + interval * 0.5);
-        }
-      }, interval);
-      timeoutRef.current = id;
-    },
-    []
-  );
-
   const iconColor = useColorModeValue("black", "white");
   controlButtonProps.color = iconColor;
+
+  const [playbackUrl, setPlaybackUrl] = useState("");
+
+  const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const onPlaybackTimestampChange = useCallback((tz: number) => {
+    console.log("setting playback head", tz);
+    if (audioRef.current) {
+      audioRef.current.currentTime = Number(tz);
+      setPlaybackTimestamp(tz);
+    }
+  }, []);
+
+  const [canViewControls, setCanViewControls] = useState(false);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
 
   const playbackState = useSelector((state: storeStateT) => state.playback);
   const userState = useSelector((state: storeStateT) => state.user);
@@ -126,103 +102,28 @@ const Player: React.FC<props> = () => {
   const rUid = userState.rUser?.uid;
   const dispatch = useDispatch();
 
-  const [isMobile] = useMediaQuery(["(max-width: 640px)"]);
-
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const onPlaybackTimestampChange = (tz: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = Number(tz);
-      setPlaybackTimestamp(tz);
-    }
-  };
-
-  const playbackDetails = usePlaybackDetails(playbackState.current, [], {
+  const playbackDetails = usePlaybackDetails(playbackState.currentSong, [], {
     onQueryStart: () => setPlaybackTimestamp(0),
     onSuccess: (res) => setPlaybackUrl(res.data.encrypted_media_url),
   });
 
-  useEffect(() => {
-    if (!uid) {
-      return;
-    }
-    const init = async () => {
-      const Peer = (await import("peerjs")).default;
-      const peer = new Peer(uid);
-      setPeer(peer);
-      peer.on("open", (id) => `peer open - ${id}`);
-    };
-    if (!peer) {
-      init();
-    } else {
-      if (!rUid) {
-        return;
-      }
-      const conn = peer.connect(rUid);
-      conn.on("open", () => {
-        conn.on("data", (d) => {
-          if (d === "ping1") {
-            rttStart.current = Date.now();
-            conn.send("pong");
-            return;
-          } else if (d === "ping2") {
-            const finalRtt = Date.now() - (rttStart.current ?? Date.now());
-            console.log({ finalRtt, rttStart: rttStart?.current });
-            // avg
-            setFinalRtt((x) => (finalRtt + x) / 2);
-          }
-          const payload = d as playbackPayloadDataT;
-          dispatch(playbackActions.remoteSync(payload));
-          onPlaybackTimestampChange(payload.tz - finalRtt);
-        });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rUid, uid]);
+  useOnlinePresence({
+    isPlaying: playbackState.isPlaying,
+    uid,
+    currentSong: playbackState.currentSong,
+  });
+
+  const { sendToRUid } = usePeerComms({ uid, rUid, onPlaybackTimestampChange });
 
   useEffect(() => {
-    peer?.on("connection", (conn) => {
-      console.log(`got a connection`, conn);
-      conn.on("open", () => {
-        conn.on("data", (d) => {
-          if (d === "pong") conn.send("ping2");
-        });
-        connToPeer.current = conn;
-        conn.send("ping1");
-        rttStart.current = Date.now();
-      });
-    });
-  }, [peer]);
-
-  useEffect(() => {
-    connToPeer.current?.send({
-      id: playbackState.current,
+    const songId = playbackState.currentSong;
+    if (!songId) return;
+    sendToRUid({
+      id: songId,
       isPlaying: playbackState.isPlaying,
       tz: playbackTimestamp,
-    } as playbackPayloadDataT);
-  }, [connToPeer, playbackState, playbackTimestamp]);
-
-  useEffect(
-    function longPollPlaybackStatus() {
-      // do not update when not playing anything or has paused
-      if (!uid || !playbackState.current || !playbackState.isPlaying) {
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-        timeoutRef.current = null;
-        return;
-      }
-      // this will cancel the current timeout (if any) on any change in playback
-      // and then trigger a timeout again
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      updatePlaybackStatus(
-        uid,
-        playbackState.current,
-        DEFAULT_POLLING_INTERVAL
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [playbackState, uid]
-  );
+    });
+  }, [rUid, playbackState, playbackTimestamp, sendToRUid]);
 
   useEffect(
     function setupListeners() {
@@ -240,7 +141,7 @@ const Player: React.FC<props> = () => {
     [audioRef, dispatch, playbackState.isPlaying]
   );
 
-  if (!playbackState.current) {
+  if (!playbackState.currentSong) {
     return null;
   }
 
@@ -385,7 +286,7 @@ const Player: React.FC<props> = () => {
                   </Box>
                   {isMobile && (
                     <IconButton
-                      isDisabled={playbackState.current === null}
+                      isDisabled={playbackState.currentSong === null}
                       onClick={() => setCanViewControls((x) => !x)}
                       {...controlButtonProps}
                       aria-label="View more"

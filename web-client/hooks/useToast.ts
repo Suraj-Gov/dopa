@@ -5,6 +5,7 @@ const useToast = () => {
     success: (opts: UseToastOptions) => t({ ...opts, status: "success" }),
     error: (opts: UseToastOptions) => t({ ...opts, status: "error" }),
     info: (opts: UseToastOptions) => t({ ...opts, status: "info" }),
+    t,
   };
 };
 export default useToast;

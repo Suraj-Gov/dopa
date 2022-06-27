@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { playbackPayloadDataT } from "../types";
 
 const initialPlaybackState = {
-  current: null as string | null,
+  currentSong: null as string | null,
   playbackIdArr: [] as string[],
   isPlaying: false,
   playSource: null as string | null,
@@ -42,7 +42,7 @@ export const playbackSlice = createSlice({
         state = initialPlaybackState;
       } else {
         state.songQueuePos = newSongQueuePos;
-        state.current = item ?? null;
+        state.currentSong = item ?? null;
       }
     },
     enqueue: (state, action: PayloadAction<string>) => {
@@ -69,7 +69,7 @@ export const playbackSlice = createSlice({
       }
     },
     remoteSync: (state, action: PayloadAction<playbackPayloadDataT>) => {
-      state.current = action.payload.id;
+      state.currentSong = action.payload.id;
       state.songQueuePos = 0;
       state.playbackIdArr = [action.payload.id];
       state.isPlaying = action.payload.isPlaying;

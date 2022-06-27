@@ -62,17 +62,49 @@ const Social = (props: IconButtonProps) => {
   const userState = useSelector((state: storeStateT) => state.user);
   const dispatch = useDispatch();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<Users[]>([]);
 
   const toast = useToast();
 
-  const login = async () => {
+  const loginCurrentUser = useCallback(
+    async (currentUser: User | null) => {
+      if (!currentUser) {
+        return;
+      }
+      const userData = removeUndefined(currentUser?.toJSON()) as User;
+      dispatch(userActions.onLogin(userData));
+      try {
+        await setDoc(
+          doc(db, "users", currentUser.uid),
+          { userData },
+          {
+            merge: true,
+          }
+        );
+      } catch (error: any) {
+        toast.error({
+          title: "Couldn't save user",
+          description: error?.message,
+        });
+        return;
+      }
+      const name = currentUser.displayName;
+      toast.success({
+        title: `Hey, ${name}`,
+      });
+    },
+    [dispatch, toast]
+  );
+
+  const login = useCallback(async () => {
     const { currentUser } = auth;
     if (!currentUser) {
+      console.log({ currentUser });
       signInWithRedirect(auth, provider);
+    } else {
+      loginCurrentUser(currentUser);
     }
-  };
+  }, [loginCurrentUser]);
 
   // TODO
   const logout = async () => {
@@ -80,40 +112,10 @@ const Social = (props: IconButtonProps) => {
     userActions.onLogout();
   };
 
-  useEffect(
-    function onLogin() {
-      setTimeout(async () => {
-        const { currentUser } = auth;
-        const userData = removeUndefined(currentUser?.toJSON()) as User;
-        setIsLoggedIn(Boolean(userData));
-        if (!currentUser) {
-          return;
-        }
-        try {
-          await setDoc(
-            doc(db, "users", currentUser.uid),
-            { userData },
-            {
-              merge: true,
-            }
-          );
-        } catch (error: any) {
-          toast.error({
-            title: "Couldn't save user",
-            description: error?.message,
-          });
-          return;
-        }
-        dispatch(userActions.onLogin(userData));
-        const name = currentUser.displayName;
-        toast.success({
-          title: `Hey, ${name}`,
-        });
-      }, 1000);
-    },
+  useEffect(() => {
+    setTimeout(login, 2000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch]
-  );
+  }, []);
 
   useEffect(
     function subToOnlineUsers() {
@@ -210,7 +212,7 @@ const Social = (props: IconButtonProps) => {
     );
   }, [onlineUsers]);
 
-  if (isLoggedIn) {
+  if (userState.user) {
     return (
       <>
         <IconButton
