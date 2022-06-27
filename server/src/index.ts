@@ -1,3 +1,4 @@
+import { PeerServer } from "peer";
 import "source-map-support/register";
 import "dotenv/config";
 import fastify from "fastify";
@@ -47,6 +48,10 @@ const PORT = process.env.PORT || 4000;
 
 const start = () => {
   server.listen(PORT, "0.0.0.0", (err, address) => {
+    PeerServer({
+      port: 3005,
+      path: "/peer",
+    });
     if (err) {
       console.error(err);
       process.exit(1);
