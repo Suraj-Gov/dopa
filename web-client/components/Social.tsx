@@ -19,6 +19,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { BsHeadphones } from "react-icons/bs";
@@ -31,6 +32,9 @@ import {
   signInWithRedirect,
   GoogleAuthProvider,
   User,
+  getRedirectResult,
+  browserPopupRedirectResolver,
+  UserCredential,
 } from "firebase/auth";
 import {
   collection,
@@ -66,6 +70,8 @@ const Social = (props: IconButtonProps) => {
 
   const toast = useToast();
 
+  const loginTimeoutRef = useRef<NodeJS.Timer>();
+
   const loginCurrentUser = useCallback(
     async (currentUser: User | null) => {
       if (!currentUser) {
@@ -96,15 +102,22 @@ const Social = (props: IconButtonProps) => {
     [dispatch, toast]
   );
 
-  const login = useCallback(async () => {
-    const { currentUser } = auth;
-    if (!currentUser) {
-      console.log({ currentUser });
-      signInWithRedirect(auth, provider);
-    } else {
+  const login = useCallback(
+    async (checkOnly?: boolean) => {
+      let currentUser: User | null = null;
+      const { currentUser: alreadyLoggedInUser } = auth;
+      currentUser = alreadyLoggedInUser;
+      if (!currentUser) {
+        // const newLoggedInUser = await getRedirectResult(auth, provider);
+        // currentUser = newLoggedInUser?.user ?? null;
+      }
+      if (!checkOnly) {
+        await signInWithRedirect(auth, provider);
+      }
       loginCurrentUser(currentUser);
-    }
-  }, [loginCurrentUser]);
+    },
+    [loginCurrentUser]
+  );
 
   // TODO
   const logout = async () => {
@@ -113,7 +126,10 @@ const Social = (props: IconButtonProps) => {
   };
 
   useEffect(() => {
-    setTimeout(login, 2000);
+    loginTimeoutRef.current = setTimeout(() => login(true), 5000);
+    return () => {
+      loginTimeoutRef.current && clearTimeout(loginTimeoutRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -144,6 +160,9 @@ const Social = (props: IconButtonProps) => {
           );
           setOnlineUsers(playersArr as Users[]);
         } catch (err) {
+          toast.error({
+            title: "Couldn't fetch online users",
+          });
           console.error(`couldn't fetch players`);
         }
       };
@@ -245,7 +264,7 @@ const Social = (props: IconButtonProps) => {
       {...props}
       aria-label="Log in"
       icon={<BiLogIn />}
-      onClick={login}
+      onClick={() => login()}
     />
   );
 };
