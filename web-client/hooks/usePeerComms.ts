@@ -6,12 +6,14 @@ import { throttle } from "throttle-debounce";
 import { playbackActions } from "../slices/playbackSlice";
 import { playbackPayloadDataT } from "../types";
 
-const PING_INTERVAL = 5_000;
+const PING_INTERVAL = 20;
+const TRANSMISSION_INTERVAL = 60;
+const PRESET_OFFSET_SEC = PING_INTERVAL / 1000 / 2;
 
 const usePeerComms = (props: {
   uid?: string;
   rUid?: string;
-  onPlaybackTimestampChange: (tz: number) => void;
+  onPlaybackTimestampChange: (tz: number, isBoolean?: boolean) => void;
 }) => {
   const { rUid, uid, onPlaybackTimestampChange } = props;
 
@@ -21,7 +23,7 @@ const usePeerComms = (props: {
   const remoteListenerConnRef = useRef<DataConnection>();
 
   const lastReqTz = useRef(Date.now());
-  const rtt = useRef(0);
+  const rttMs = useRef(0);
   const pingIntervalRef = useRef<NodeJS.Timer>();
 
   const toast = useToast();
@@ -53,9 +55,8 @@ const usePeerComms = (props: {
   const syncWithPayload = useCallback(
     (payload: playbackPayloadDataT) => {
       dispatch(playbackActions.remoteSync(payload));
-      console.log((rtt.current * 1000).toFixed(0), "ping");
-      const remoteTz = payload.tz + rtt.current + 0.04;
-      onPlaybackTimestampChange(remoteTz);
+      const remoteTz = payload.tzSec + rttMs.current / 10;
+      onPlaybackTimestampChange(remoteTz, true);
     },
     [dispatch, onPlaybackTimestampChange]
   );
@@ -65,9 +66,9 @@ const usePeerComms = (props: {
     r?.on("data", (d) => {
       if (d === "pong") {
         const now = Date.now();
-        // avg
-        rtt.current += (now - lastReqTz.current) / 1000;
-        rtt.current /= 2;
+        // half of rtt is the ping required from remote to listener
+        const diff = (now - lastReqTz.current) / 2;
+        rttMs.current = diff + 0.016;
         return;
       }
       const payload = d as playbackPayloadDataT;
@@ -106,7 +107,8 @@ const usePeerComms = (props: {
 
     const startPings = () => {
       r?.send("ping");
-      lastReqTz.current = Date.now();
+      const now = Date.now();
+      lastReqTz.current = now;
     };
 
     r?.on("open", () => {
@@ -118,10 +120,12 @@ const usePeerComms = (props: {
 
   const sendToRUid = useMemo(
     () =>
-      throttle(40, (payload: playbackPayloadDataT) => {
+      throttle(TRANSMISSION_INTERVAL, (payload: playbackPayloadDataT) => {
+        if (rUid) return;
+        console.log(Date.now(), payload.tzSec);
         remoteListenerConnRef.current?.send(payload);
       }),
-    []
+    [rUid]
   );
 
   useEffect(() => {
@@ -133,6 +137,7 @@ const usePeerComms = (props: {
 
   return {
     sendToRUid,
+    rttMs: rttMs.current,
   };
 };
 

@@ -19,7 +19,7 @@ export type Users = {
 
 export type playbackPayloadDataT = {
   id: string;
-  tz: number;
+  tzSec: number;
   isPlaying: boolean;
 };
 

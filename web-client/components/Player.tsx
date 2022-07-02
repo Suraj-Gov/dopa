@@ -84,13 +84,23 @@ const Player: React.FC<props> = () => {
 
   const [playbackTimestamp, setPlaybackTimestamp] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const onPlaybackTimestampChange = useCallback((tz: number) => {
-    console.log("setting playback head", tz);
-    if (audioRef.current) {
-      audioRef.current.currentTime = Number(tz);
-      setPlaybackTimestamp(tz);
-    }
-  }, []);
+  const onPlaybackTimestampChange = useCallback(
+    (tz: number, isRemote?: boolean) => {
+      console.log(Date.now(), tz);
+      if (audioRef.current) {
+        // dithering fix
+        // if (isRemote) {
+        //   const diff = Math.abs(audioRef.current.currentTime - tz);
+        //   if (diff < 0.05) {
+        //     return;
+        //   }
+        // }
+        audioRef.current.currentTime = Number(tz);
+        setPlaybackTimestamp(tz);
+      }
+    },
+    []
+  );
 
   const [canViewControls, setCanViewControls] = useState(false);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
@@ -113,7 +123,11 @@ const Player: React.FC<props> = () => {
     currentSong: playbackState.currentSong,
   });
 
-  const { sendToRUid } = usePeerComms({ uid, rUid, onPlaybackTimestampChange });
+  const { sendToRUid, rttMs } = usePeerComms({
+    uid,
+    rUid,
+    onPlaybackTimestampChange,
+  });
 
   useEffect(() => {
     const songId = playbackState.currentSong;
@@ -121,7 +135,7 @@ const Player: React.FC<props> = () => {
     sendToRUid({
       id: songId,
       isPlaying: playbackState.isPlaying,
-      tz: playbackTimestamp,
+      tzSec: playbackTimestamp,
     });
   }, [rUid, playbackState, playbackTimestamp, sendToRUid]);
 
@@ -278,11 +292,15 @@ const Player: React.FC<props> = () => {
                 {!isMobile && playerControls}
                 <Flex alignItems={"center"}>
                   <Box w="8" position="relative">
-                    <EntityPlaybackButton
-                      sourceId={playbackState.playSource ?? ""}
-                      isSong
-                      size={"2rem"}
-                    />
+                    {!playbackState.playSource ? (
+                      <Text>{rttMs}ms</Text>
+                    ) : (
+                      <EntityPlaybackButton
+                        sourceId={playbackState.playSource ?? ""}
+                        isSong
+                        size={"2rem"}
+                      />
+                    )}
                   </Box>
                   {isMobile && (
                     <IconButton
